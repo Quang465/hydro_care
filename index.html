@@ -193,27 +193,45 @@
     })();
 
     // ===== AUTH ACTIONS =====
-    async function register(){
-      const email = document.getElementById('email').value.trim();
-      const password = document.getElementById('password').value;
-      if (!email || !password) return toast('Nhập email & password');
-      setStatus('Đang đăng ký...');
-      try {
-        const { data, error } = await supabase.auth.signUp({ email, password });
-        if (error) { setStatus('Đăng ký lỗi'); toast('Lỗi: ' + error.message); return; }
-        // If email confirmation disabled, data.session should exist and user is logged in
-        if (data?.session) {
-          setStatus('Đăng ký & đăng nhập thành công');
-          toast('Chào mừng ' + (data.user?.email || '') );
-          setUserUI(data.user);
-        } else {
-          setStatus('Đăng ký thành công (vui lòng kiểm tra email nếu cần)');
-          toast('Đăng ký thành công');
-        }
-      } catch(err){
-        setStatus('Lỗi đăng ký'); toast('Lỗi đăng ký'); console.error(err);
-      }
+async function register(){
+  const email = document.getElementById('email').value.trim();
+  const password = document.getElementById('password').value;
+  if (!email || !password) { toast('Nhập email & password'); return; }
+
+  setStatus('Đang đăng ký...');
+  try {
+    // gọi và lấy cả data lẫn error
+    const res = await supabase.auth.signUp({ email, password });
+    console.log('signUp response:', res); // <--- debug log
+    const { data, error } = res;
+
+    if (error) {
+      // lỗi rõ ràng từ Supabase
+      setStatus('Đăng ký lỗi');
+      toast('Lỗi đăng ký: ' + (error.message || JSON.stringify(error)));
+      return;
     }
+
+    // Nếu confirmation OFF thì data.session sẽ tồn tại và user đã login
+    if (data?.session) {
+      setStatus('Đăng ký & đăng nhập thành công');
+      toast('Chào mừng ' + (data.user?.email || ''));
+      // cập nhật UI local
+      setUserUI(data.user);
+    } else {
+      // Khi confirmation ON, data.user có thể tồn tại nhưng session null
+      setStatus('Đăng ký thành công — kiểm tra email để xác thực');
+      toast('Đăng ký thành công — kiểm tra email để xác thực');
+      console.log('signUp no session, data:', data);
+    }
+  } catch (err) {
+    // lỗi network / runtime
+    console.error('register exception', err);
+    setStatus('Lỗi đăng ký (network)');
+    toast('Lỗi mạng: ' + (err.message || err));
+  }
+}
+
 
     async function login(){
       const email = document.getElementById('email').value.trim();
