@@ -3,201 +3,146 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Aqua-IoT Dashboard — Theme & Auth UX</title>
+  <title>Aqua-IoT — Light Theme</title>
 
-  <!-- Supabase + Chart.js -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
   <style>
     :root{
-      --bg-1: linear-gradient(135deg,#0b1221 0%, #082033 50%, #04304a 100%);
-      --panel: rgba(255,255,255,0.04);
-      --accent: #00d1b2;       /* primary accent */
-      --accent-2: #ffb347;     /* warm secondary */
-      --muted: #9fb3c8;
-      --card-bg: rgba(255,255,255,0.03);
-      --glass: rgba(255,255,255,0.02);
-      --success: #34d399;
-      --danger: #ff6b6b;
-      --text: #e8f5ff;
+      --bg: #f3f7fb;
+      --panel: #ffffff;
+      --muted: #6b7280;
+      --accent: #2563eb; /* blue */
+      --card-shadow: 0 6px 24px rgba(37,99,235,0.08);
+      --text: #0b1221;
     }
     *{box-sizing:border-box}
     body{
       margin:0;
       min-height:100vh;
       font-family: Inter, "Segoe UI", Roboto, Arial, sans-serif;
-      background: var(--bg-1);
+      background: linear-gradient(180deg,#eaf2ff 0%, #f8fbff 100%);
       color:var(--text);
       display:flex;
-      align-items:flex-start;
       justify-content:center;
       padding:28px;
     }
+    .app{ width:100%; max-width:1100px; }
 
-    .app { width:100%; max-width:1100px; }
+    .top{ display:flex; gap:12px; align-items:center; margin-bottom:16px; }
+    .card{ background:var(--panel); border-radius:10px; padding:12px; box-shadow:var(--card-shadow); }
 
-    .top { display:flex; gap:12px; align-items:center; margin-bottom:16px; }
-
-    .card { background:var(--panel); border-radius:12px; padding:14px; box-shadow: 0 8px 30px rgba(2,6,23,0.6); }
-
-    /* AUTH */
-    .auth { display:flex; gap:8px; align-items:center; padding:12px; background:var(--card-bg); border-radius:10px; }
+    .auth { display:flex; gap:8px; align-items:center; padding:12px; border-radius:10px; }
     input[type="email"], input[type="password"], input[type="text"]{
+      padding:10px 12px; border:1px solid #e6eef8; border-radius:8px; outline:none; width:220px;
       background:transparent;
-      border:1px solid rgba(255,255,255,0.06);
-      color:inherit;
-      padding:10px 12px;
-      border-radius:8px;
-      outline:none;
-      width:220px;
     }
-    button {
-      background:var(--accent);
-      border:none;
-      color:#042021;
-      padding:10px 12px;
-      border-radius:8px;
-      cursor:pointer;
-      font-weight:600;
-    }
-    button.ghost { background:transparent; color:var(--muted); border:1px solid rgba(255,255,255,0.04); }
-    .btn-clear { background:transparent; border:1px solid rgba(255,255,255,0.04); color:var(--muted) }
-    .btn-danger { background:var(--danger); color:#fff }
+    button{ background:var(--accent); color:#fff; border:none; padding:10px 12px; border-radius:8px; cursor:pointer; font-weight:600; }
+    .ghost{ background:transparent; color:var(--muted); border:1px solid #eef3ff; }
 
-    .row { display:flex; gap:12px; align-items:center; }
-    .spacer { flex:1 }
+    .grid{ display:grid; grid-template-columns: 1fr 360px; gap:14px; }
+    @media (max-width:960px){ .grid{ grid-template-columns: 1fr } }
 
-    .grid { display:grid; grid-template-columns: 1fr 420px; gap:14px; }
+    .controls{ display:flex; gap:8px; align-items:center; padding:10px; border-radius:8px; }
+    .small{ font-size:13px; color:var(--muted) }
+    #multiChart{ width:100%; height:360px; background:#fff; border-radius:8px; }
 
-    .left { display:flex; flex-direction:column; gap:12px; }
-    .controls { display:flex; gap:8px; align-items:center; flex-wrap:wrap; background:var(--card-bg); padding:12px; border-radius:10px; }
+    .metrics{ display:grid; grid-template-columns: repeat(2, 1fr); gap:10px; }
+    .metric{ background:#fbfdff; padding:12px; border-radius:8px; border:1px solid #eef6ff; }
+    .metric .label{ font-size:13px; color:var(--muted) }
+    .metric .value{ font-size:20px; font-weight:700; margin-top:6px; }
 
-    #multiChart { width:100%; height:360px; border-radius:8px; background:white; }
+    .history{ max-height:220px; overflow:auto; padding:8px; border-radius:6px; }
+    table{ width:100%; border-collapse:collapse; font-size:13px }
+    th, td{ padding:8px; text-align:left; border-bottom:1px solid #f1f7ff; color:var(--muted) }
+    th{ font-weight:600; color:#475569 }
 
-    .right { display:flex; flex-direction:column; gap:12px; }
+    .status{ color:var(--muted); font-size:13px; margin-left:12px; }
+    .toast{ position:fixed; right:20px; bottom:20px; background:#0b1221; color:#fff; padding:10px 14px; border-radius:8px; display:none; }
 
-    .metrics { display:grid; grid-template-columns: repeat(2, 1fr); gap:10px; }
-    .metric { background:var(--glass); padding:12px; border-radius:10px; }
-    .metric .value { font-size:20px; font-weight:700; margin-top:6px; }
-    .small { font-size:13px; color:var(--muted) }
-    .history { max-height: 260px; overflow:auto; padding:8px; background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)); border-radius:8px; }
-    table { width:100%; border-collapse:collapse; color:#cfe8ff; font-size:13px }
-    th, td { padding:8px; text-align:left; border-bottom:1px dashed rgba(255,255,255,0.03) }
-    th { color:var(--muted); font-weight:600; font-size:12px }
-
-    .status { color:var(--muted); font-size:13px; }
-    .checkboxes label { color:var(--muted); font-size:13px; margin-right:8px; }
-
-    .toast { position:fixed; right:20px; bottom:20px; background: rgba(3,30,30,0.9); color:#bfece5; padding:10px 14px; border-radius:8px; box-shadow:0 8px 30px rgba(0,0,0,0.6); display:none; }
-    .loader { width:18px; height:18px; border-radius:50%; border:3px solid rgba(255,255,255,0.06); border-top-color:var(--accent); animation:spin 1s linear infinite; }
-    @keyframes spin { to { transform:rotate(360deg) } }
-
-    @media (max-width:980px){ .grid { grid-template-columns: 1fr; } .right { order:2 } .left { order:1 } }
   </style>
 </head>
 <body>
   <div class="app">
     <div class="top">
       <div class="card auth" id="authRow">
-        <div class="row">
-          <input id="email" type="email" placeholder="Email" />
-          <input id="password" type="password" placeholder="Password" />
-          <button id="btnLogin" onclick="login()">Đăng nhập</button>
-          <button id="btnRegister" class="ghost" onclick="register()">Đăng ký</button>
-        </div>
+        <input id="email" type="email" placeholder="Email" />
+        <input id="password" type="password" placeholder="Password" />
+        <button id="btnLogin" onclick="login()">Đăng nhập</button>
+        <button id="btnRegister" class="ghost" onclick="register()">Đăng ký</button>
       </div>
 
-      <div class="card" id="userInfo" style="display:none; padding:10px 14px;">
+      <div class="card" id="userInfo" style="display:none; padding:10px;">
         <div style="font-weight:700" id="userEmail">—</div>
         <div class="small" id="userIdShort">.</div>
-        <div style="margin-top:8px">
-          <button id="btnLogout" class="ghost" onclick="logout()">Đăng xuất</button>
-        </div>
+        <div style="margin-top:8px"><button class="ghost" onclick="logout()">Đăng xuất</button></div>
       </div>
 
-      <div class="spacer"></div>
+      <div style="flex:1"></div>
 
-      <div class="card" style="min-width:200px">
-        <div class="row" style="align-items:center">
-          <div id="statusText" class="status">Chưa kết nối</div>
-          <div style="width:8px"></div>
-          <div id="loader" style="display:none" class="loader"></div>
-        </div>
+      <div class="card" style="min-width:220px; display:flex; align-items:center; gap:8px;">
+        <div class="small" id="statusText">Sẵn sàng</div>
       </div>
     </div>
 
     <div class="grid">
-      <div class="left">
-        <div class="controls card">
+      <div>
+        <div class="card controls" style="align-items:center;">
           <input id="espIdInput" type="text" placeholder="Nhập ESP32 ID (vd: ESP32_001)" />
-          <button onclick="loadDeviceData()" class="primary">Tìm & Hiển thị</button>
-          <button onclick="claimDevice()" class="ghost">Claim device</button>
-          <button onclick="stopRealtime()" class="btn-clear">Tắt Realtime</button>
-
-          <div style="margin-left:auto" class="row">
-            <div class="checkboxes">
-              <label><input id="chkTemp" type="checkbox" checked onchange="toggleSeries()"> Temp</label>
-              <label><input id="chkPH" type="checkbox" checked onchange="toggleSeries()"> pH</label>
-              <label><input id="chkTDS" type="checkbox" checked onchange="toggleSeries()"> TDS</label>
-              <label><input id="chkTUR" type="checkbox" checked onchange="toggleSeries()"> Turbidity</label>
-            </div>
-          </div>
+          <button onclick="loadDeviceData()">Tìm & Hiển thị</button>
+          <button class="ghost" onclick="stopRealtime()">Tắt Realtime</button>
+          <div style="margin-left:auto" class="small">Realtime · 10 phút window</div>
         </div>
 
-        <div class="card">
+        <div class="card" style="margin-top:12px;">
           <canvas id="multiChart"></canvas>
         </div>
 
-        <div class="card">
-          <div style="display:flex; justify-content:space-between; align-items:center">
+        <div class="card" style="margin-top:12px;">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
             <div class="small">Dữ liệu (10 phút gần nhất)</div>
-            <div style="display:flex; gap:8px; align-items:center">
-              <button onclick="downloadCSV()" class="ghost">Download CSV</button>
-              <button onclick="refreshNow()" class="ghost">Refresh</button>
+            <div>
+              <button class="ghost" onclick="downloadCSV()">Download CSV</button>
+              <button class="ghost" onclick="refreshNow()">Refresh</button>
             </div>
           </div>
-
-          <div class="history" id="historyBox">
-            <table id="historyTable">
-              <thead><tr><th>Thời gian</th><th>Temp</th><th>pH</th><th>TDS</th><th>NTU</th></tr></thead>
-              <tbody></tbody>
+          <div class="history">
+            <table>
+              <thead><tr><th>Time</th><th>Temp</th><th>pH</th><th>TDS</th><th>NTU</th></tr></thead>
+              <tbody id="historyBody"></tbody>
             </table>
           </div>
         </div>
       </div>
 
-      <div class="right">
-        <div class="card metrics">
+      <div class="card" style="display:flex; flex-direction:column; gap:12px;">
+        <div class="metrics">
           <div class="metric">
-            <div class="small">Temperature</div>
+            <div class="label">Temperature</div>
             <div class="value" id="vTemp">—</div>
             <div class="small" id="tTemp">—</div>
           </div>
           <div class="metric">
-            <div class="small">pH</div>
+            <div class="label">pH</div>
             <div class="value" id="vPH">—</div>
             <div class="small" id="tPH">—</div>
           </div>
           <div class="metric">
-            <div class="small">TDS</div>
+            <div class="label">TDS</div>
             <div class="value" id="vTDS">—</div>
             <div class="small" id="tTDS">—</div>
           </div>
           <div class="metric">
-            <div class="small">Turbidity</div>
+            <div class="label">Turbidity</div>
             <div class="value" id="vTUR">—</div>
             <div class="small" id="tTUR">—</div>
           </div>
         </div>
 
         <div class="card">
-          <div style="font-weight:600">Actions & Info</div>
-          <div class="small" style="margin-top:8px; color:var(--muted)">
-            - Login để claim device.<br>
-            - Realtime: cập nhật mỗi khi có INSERT mới.<br>
-            - UI tạm thời chưa áp dụng bảo mật sâu.
-          </div>
+          <div style="font-weight:700; margin-bottom:6px">Info</div>
+          <div class="small">- Đăng ký/đăng nhập hoạt động với Supabase free nếu bạn đã tắt email confirmation.<br>- Nếu đăng ký vẫn không hoàn tất, kiểm tra Supabase Auth settings (Email signup & Confirmations).</div>
         </div>
       </div>
     </div>
@@ -206,160 +151,104 @@
   </div>
 
   <script>
-    // -------------------------
-    // Config - thay giá trị project của bạn
-    // -------------------------
+    // ===== CONFIG =====
     const SUPA_URL = "https://nrxtyqqpxzoyyyfltwqs.supabase.co";
     const SUPA_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5yeHR5cXFweHpveXl0d3FzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTU0NzkxOTksImV4cCI6MjA3MTA1NTE5OX0.o5UC5nHA0TZd5Z8b3PNjlzY7rqbYCNbJMvjVkO59r3w";
-
     const supabase = supabase.createClient(SUPA_URL, SUPA_KEY);
 
-    // -------------------------
-    // State
-    // -------------------------
+    // ===== STATE =====
     let espId = null;
     let subscription = null;
     let chart = null;
-    const state = { timestamps: [], labels: [], temperature: [], ph: [], tds: [], turbidity: [] };
+    const state = { timestamps:[], labels:[], temperature:[], ph:[], tds:[], turbidity:[] };
 
-    // UI helpers
-    function showToast(msg, timeout=3000) {
-      const t = document.getElementById('toast');
-      t.innerText = msg;
-      t.style.display = 'block';
-      clearTimeout(t._to);
-      t._to = setTimeout(()=> t.style.display='none', timeout);
-    }
-    function setStatus(s, loading=false){
-      document.getElementById('statusText').innerText = s;
-      document.getElementById('loader').style.display = loading ? 'inline-block' : 'none';
-    }
+    // ===== UI HELPERS =====
+    function toast(msg, t=3000){ const el = document.getElementById('toast'); el.innerText=msg; el.style.display='block'; clearTimeout(el._to); el._to=setTimeout(()=>el.style.display='none', t); }
+    function setStatus(s){ document.getElementById('statusText').innerText = s; }
     function setUserUI(user){
       const authRow = document.getElementById('authRow');
       const userInfo = document.getElementById('userInfo');
-      if (user) {
-        authRow.style.display = 'none';
-        userInfo.style.display = 'block';
+      if (user){
+        authRow.style.display='none';
+        userInfo.style.display='block';
         document.getElementById('userEmail').innerText = user.email || user.id;
         document.getElementById('userIdShort').innerText = user.id ? user.id.slice(0,8) : '';
       } else {
-        authRow.style.display = 'flex';
-        userInfo.style.display = 'none';
-        document.getElementById('userEmail').innerText = '—';
-        document.getElementById('userIdShort').innerText = '';
+        authRow.style.display='flex';
+        userInfo.style.display='none';
       }
     }
 
-    // -------------------------
-    // Auth init & listeners
-    // -------------------------
-    (async function init(){
+    // ===== AUTH INIT =====
+    (async function initAuth(){
       try {
         const { data } = await supabase.auth.getSession();
         const session = data?.session;
         if (session?.user) setUserUI(session.user);
-      } catch (err) {
-        console.warn('auth init err', err);
-      }
-
+      } catch(e){ console.warn('auth init err', e); }
       supabase.auth.onAuthStateChange((event, session) => {
-        if (session?.user) {
-          setUserUI(session.user);
-          setStatus('Đã đăng nhập.');
-        } else {
-          setUserUI(null);
-          setStatus('Chưa đăng nhập.');
-          stopRealtime();
-          clearChart();
-        }
+        if (session?.user) { setUserUI(session.user); setStatus('Đã đăng nhập'); }
+        else { setUserUI(null); setStatus('Chưa đăng nhập'); stopRealtime(); clearChart(); }
       });
-
-      setStatus('Sẵn sàng.');
     })();
 
-    // -------------------------
-    // Auth actions
-    // -------------------------
+    // ===== AUTH ACTIONS =====
     async function register(){
       const email = document.getElementById('email').value.trim();
       const password = document.getElementById('password').value;
-      if (!email || !password) return showToast('Nhập email & password');
-
-setStatus('Đang đăng ký...');
-
-const { data, error } = await supabase.auth.signUp({
-  email,
-  password,
-});
-
-if (error) {
-  setStatus('Đăng ký lỗi');
-  showToast('Lỗi đăng ký: ' + error.message);
-} else {
-  // Nếu tắt email confirmation thì data.session có luôn
-  if (data?.session) {
-    setStatus('Đăng ký & đăng nhập thành công!');
-    showToast('Chào mừng ' + data.user.email);
-
-    // 👉 chuyển sang dashboard luôn
-    window.location.href = '/dashboard';
-  } else {
-    // fallback nếu có cấu hình khác
-    setStatus('Đăng ký thành công, vui lòng đăng nhập.');
-    showToast('Đăng ký thành công');
-  }
-}
+      if (!email || !password) return toast('Nhập email & password');
+      setStatus('Đang đăng ký...');
+      try {
+        const { data, error } = await supabase.auth.signUp({ email, password });
+        if (error) { setStatus('Đăng ký lỗi'); toast('Lỗi: ' + error.message); return; }
+        // If email confirmation disabled, data.session should exist and user is logged in
+        if (data?.session) {
+          setStatus('Đăng ký & đăng nhập thành công');
+          toast('Chào mừng ' + (data.user?.email || '') );
+          setUserUI(data.user);
+        } else {
+          setStatus('Đăng ký thành công (vui lòng kiểm tra email nếu cần)');
+          toast('Đăng ký thành công');
+        }
+      } catch(err){
+        setStatus('Lỗi đăng ký'); toast('Lỗi đăng ký'); console.error(err);
+      }
+    }
 
     async function login(){
       const email = document.getElementById('email').value.trim();
       const password = document.getElementById('password').value;
-      if (!email || !password) return showToast('Nhập email & password');
-      setStatus('Đang đăng nhập...', true);
-      const { error } = await supabase.auth.signInWithPassword({ email, password });
-      if (error) { setStatus('Lỗi đăng nhập'); showToast('Lỗi đăng nhập: ' + error.message); }
-      else { setStatus('Đăng nhập thành công'); showToast('Đăng nhập OK'); }
+      if (!email || !password) return toast('Nhập email & password');
+      setStatus('Đang đăng nhập...');
+      try {
+        const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+        if (error) { setStatus('Lỗi đăng nhập'); toast('Lỗi: ' + error.message); return; }
+        if (data?.session) {
+          setStatus('Đăng nhập thành công'); toast('Đăng nhập OK');
+          setUserUI(data.user);
+        } else {
+          setStatus('Đăng nhập xong'); toast('Đã đăng nhập');
+        }
+      } catch(err){
+        setStatus('Lỗi đăng nhập'); toast('Lỗi đăng nhập'); console.error(err);
+      }
     }
 
     async function logout(){
-      const { error } = await supabase.auth.signOut();
-      if (error) showToast('Lỗi logout: ' + error.message);
-      else { showToast('Đã đăng xuất'); setStatus('Chưa đăng nhập.'); setUserUI(null); }
+      await supabase.auth.signOut();
+      setUserUI(null);
+      setStatus('Chưa đăng nhập');
+      toast('Đã đăng xuất');
     }
 
-    // -------------------------
-    // Claim device
-    // -------------------------
-    async function claimDevice(){
-      const id = document.getElementById('espIdInput').value.trim();
-      if (!id) return showToast('Nhập esp_id để claim');
-      const { data: userData } = await supabase.auth.getUser();
-      const user = userData?.user;
-      if (!user) return showToast('Đăng nhập trước khi claim');
-
-      setStatus('Đang claim device...', true);
-      const { data, error } = await supabase
-        .from('devices')
-        .update({ user_id: user.id })
-        .eq('esp_id', id)
-        .is('user_id', null)
-        .select();
-
-      if (error) { setStatus('Claim lỗi'); showToast('Claim lỗi: ' + error.message); return; }
-      if (data && data.length>0) { setStatus('Claim thành công'); showToast('Claim thành công'); }
-      else { setStatus('Device đã có chủ hoặc không tồn tại'); showToast('Không claim: device đã có chủ hoặc không tồn tại'); }
-    }
-
-    // -------------------------
-    // Load data + realtime
-    // -------------------------
+    // ===== DATA LOAD + CHART (simplified) =====
     async function loadDeviceData(){
       stopRealtime();
       const id = document.getElementById('espIdInput').value.trim();
-      if (!id) return showToast('Nhập esp_id');
+      if (!id) return toast('Nhập esp_id');
       espId = id;
-      setStatus(`Tải dữ liệu cho ${espId}...`, true);
-
-      const since = new Date(Date.now() - 10 * 60 * 1000).toISOString();
+      setStatus(`Tải dữ liệu ${espId}...`);
+      const since = new Date(Date.now() - 10*60*1000).toISOString();
       const { data, error } = await supabase
         .from('sensors_data')
         .select('created_at, temperature, ph, tds, turbidity')
@@ -367,212 +256,111 @@ if (error) {
         .gte('created_at', since)
         .order('created_at', { ascending: true });
 
-      if (error) { setStatus('Lỗi query'); showToast('Lỗi query: ' + error.message); return; }
+      if (error) { setStatus('Lỗi query'); toast('Lỗi query: '+error.message); return; }
 
-      // reset state
-      state.timestamps.length = 0;
-      state.labels.length = 0;
-      state.temperature.length = 0;
-      state.ph.length = 0;
-      state.tds.length = 0;
-      state.turbidity.length = 0;
-
+      // reset and populate
+      state.timestamps.length=0; state.labels.length=0; state.temperature.length=0; state.ph.length=0; state.tds.length=0; state.turbidity.length=0;
       for (const r of data) {
         const t = new Date(r.created_at).getTime();
         state.timestamps.push(t);
         state.labels.push(new Date(r.created_at).toLocaleTimeString());
-        state.temperature.push(normalizeVal(r.temperature));
-        state.ph.push(normalizeVal(r.ph));
-        state.tds.push(normalizeVal(r.tds));
-        state.turbidity.push(normalizeVal(r.turbidity));
+        state.temperature.push(numOrNull(r.temperature));
+        state.ph.push(numOrNull(r.ph));
+        state.tds.push(numOrNull(r.tds));
+        state.turbidity.push(numOrNull(r.turbidity));
       }
-
-      renderOrUpdateChart();
+      renderChart();
       renderHistory();
-      updateMetricCards();
+      updateCards();
       setStatus(`Đã tải ${state.timestamps.length} mẫu`);
       startRealtime();
     }
 
-    function normalizeVal(v){ const n = Number(v); return Number.isFinite(n) ? n : null; }
+    function numOrNull(v){ const n=Number(v); return Number.isFinite(n)?n:null; }
 
-    // -------------------------
-    // Chart rendering (colors tuned)
-    // -------------------------
-    function renderOrUpdateChart(){
+    // Chart
+    function renderChart(){
       const ctx = document.getElementById('multiChart').getContext('2d');
       const labels = state.labels.slice();
-
       const datasets = [
-        { label:'Temperature (°C)', data: state.temperature.slice(), borderColor:'#ff6b6b', backgroundColor:'rgba(255,107,107,0.08)', yAxisID:'y', hidden:!document.getElementById('chkTemp').checked },
-        { label:'pH', data: state.ph.slice(), borderColor:'#3b82f6', backgroundColor:'rgba(59,130,246,0.08)', yAxisID:'y1', hidden:!document.getElementById('chkPH').checked },
-        { label:'TDS (ppm)', data: state.tds.slice(), borderColor:'#10b981', backgroundColor:'rgba(16,185,129,0.08)', yAxisID:'y2', hidden:!document.getElementById('chkTDS').checked },
-        { label:'Turbidity (NTU)', data: state.turbidity.slice(), borderColor:'#7c3aed', backgroundColor:'rgba(124,58,237,0.08)', yAxisID:'y3', hidden:!document.getElementById('chkTUR').checked }
+        { label:'Temp (°C)', data: state.temperature.slice(), borderColor:'#ef4444', tension:0.3, pointRadius:1 },
+        { label:'pH', data: state.ph.slice(), borderColor:'#3b82f6', tension:0.3, pointRadius:1 },
+        { label:'TDS', data: state.tds.slice(), borderColor:'#10b981', tension:0.3, pointRadius:1 },
+        { label:'NTU', data: state.turbidity.slice(), borderColor:'#7c3aed', tension:0.3, pointRadius:1 }
       ];
-
-      if (chart) {
-        chart.data.labels = labels;
-        chart.data.datasets.forEach((ds,i)=>{ ds.data = datasets[i].data; ds.hidden = datasets[i].hidden; });
-        chart.update();
-        return;
-      }
-
+      if (chart){ chart.data.labels = labels; chart.data.datasets = datasets; chart.update(); return; }
       chart = new Chart(ctx, {
-        type: 'line',
-        data: { labels, datasets },
-        options: {
-          animation:false,
-          maintainAspectRatio:false,
-          interaction:{ mode:'index', intersect:false },
-          plugins:{ legend:{ position:'top' } },
-          scales:{
-            x:{ title:{ display:true, text:'Time' } },
-            y:{ type:'linear', position:'left', title:{display:true, text:'Temperature (°C)'} },
-            y1:{ type:'linear', position:'right', grid:{ drawOnChartArea:false }, title:{display:true, text:'pH'} },
-            y2:{ type:'linear', position:'right', display:false, grid:{ drawOnChartArea:false }, title:{display:true, text:'TDS'} },
-            y3:{ type:'linear', position:'right', display:false, grid:{ drawOnChartArea:false }, title:{display:true, text:'Turbidity'} }
-          }
-        }
+        type:'line',
+        data:{ labels, datasets },
+        options:{ animation:false, maintainAspectRatio:false, plugins:{ legend:{ position:'top' } }, interaction:{mode:'index', intersect:false}, scales:{ x:{ title:{display:true,text:'Time'} } } }
       });
     }
 
-    function toggleSeries(){
-      if (!chart) return;
-      chart.data.datasets.forEach(ds => {
-        if (ds.label.includes('Temperature')) ds.hidden = !document.getElementById('chkTemp').checked;
-        if (ds.label.includes('pH')) ds.hidden = !document.getElementById('chkPH').checked;
-        if (ds.label.includes('TDS')) ds.hidden = !document.getElementById('chkTDS').checked;
-        if (ds.label.includes('Turbidity')) ds.hidden = !document.getElementById('chkTUR').checked;
-      });
-      chart.update();
-    }
-
-    // -------------------------
     // Realtime
-    // -------------------------
     function startRealtime(){
       if (!espId) return;
       if (subscription) { supabase.removeChannel(subscription); subscription = null; }
-
       subscription = supabase
-        .channel('realtime-sensors-' + espId)
-        .on('postgres_changes', {
-          event: 'INSERT',
-          schema: 'public',
-          table: 'sensors_data',
-          filter: `device_id=eq.${espId}`
-        }, payload => {
-          const row = payload.new;
-          pushRow(row);
+        .channel('realtime-'+espId)
+        .on('postgres_changes', { event:'INSERT', schema:'public', table:'sensors_data', filter:`device_id=eq.${espId}` }, payload => {
+          pushRow(payload.new);
         })
-        .subscribe(status => {
-          if (status === 'SUBSCRIBED') setStatus(`Realtime subscribed for ${espId}`);
-        });
+        .subscribe(status => { if (status === 'SUBSCRIBED') setStatus('Realtime on for '+espId); });
     }
-
-    function stopRealtime(){
-      if (subscription) {
-        supabase.removeChannel(subscription);
-        subscription = null;
-        setStatus('Realtime unsubscribed.');
-      }
-    }
+    function stopRealtime(){ if (subscription) { supabase.removeChannel(subscription); subscription=null; setStatus('Realtime off'); } }
 
     function pushRow(row){
-      try {
-        const t = new Date(row.created_at).getTime();
-        const label = new Date(row.created_at).toLocaleTimeString();
-
-        state.timestamps.push(t);
-        state.labels.push(label);
-        state.temperature.push(normalizeVal(row.temperature));
-        state.ph.push(normalizeVal(row.ph));
-        state.tds.push(normalizeVal(row.tds));
-        state.turbidity.push(normalizeVal(row.turbidity));
-
-        const windowStart = Date.now() - 10*60*1000;
-        while (state.timestamps.length && state.timestamps[0] < windowStart) {
-          state.timestamps.shift();
-          state.labels.shift();
-          state.temperature.shift();
-          state.ph.shift();
-          state.tds.shift();
-          state.turbidity.shift();
-        }
-
-        renderOrUpdateChart();
-        renderHistory();
-        updateMetricCards();
-        setStatus(`Received new @ ${label}`);
-      } catch(err) { console.error('pushRow err', err); }
+      const t = new Date(row.created_at).getTime();
+      state.timestamps.push(t);
+      state.labels.push(new Date(row.created_at).toLocaleTimeString());
+      state.temperature.push(numOrNull(row.temperature));
+      state.ph.push(numOrNull(row.ph));
+      state.tds.push(numOrNull(row.tds));
+      state.turbidity.push(numOrNull(row.turbidity));
+      // trim to 10 minutes
+      const windowStart = Date.now() - 10*60*1000;
+      while(state.timestamps.length && state.timestamps[0] < windowStart){
+        state.timestamps.shift(); state.labels.shift(); state.temperature.shift(); state.ph.shift(); state.tds.shift(); state.turbidity.shift();
+      }
+      renderChart(); renderHistory(); updateCards();
     }
 
-    // -------------------------
-    // UI updates: history + metric cards
-    // -------------------------
+    // UI: history and cards
     function renderHistory(){
-      const tbody = document.querySelector('#historyTable tbody');
-      tbody.innerHTML = '';
-      for (let i = state.labels.length-1; i>=0; i--){
+      const tbody = document.getElementById('historyBody'); tbody.innerHTML='';
+      for(let i=state.labels.length-1;i>=0;i--){
         const tr = document.createElement('tr');
-        const time = state.labels[i] || '-';
-        tr.innerHTML = `<td>${time}</td>
-                        <td>${maybeNum(state.temperature[i])}</td>
-                        <td>${maybeNum(state.ph[i])}</td>
-                        <td>${maybeNum(state.tds[i])}</td>
-                        <td>${maybeNum(state.turbidity[i])}</td>`;
+        tr.innerHTML = `<td>${state.labels[i]||'-'}</td><td>${val(state.temperature[i])}</td><td>${val(state.ph[i])}</td><td>${val(state.tds[i])}</td><td>${val(state.turbidity[i])}</td>`;
         tbody.appendChild(tr);
       }
     }
-    function maybeNum(v){ return v===null||v===undefined? '-' : v; }
-
-    function updateMetricCards(){
-      const lastIdx = state.timestamps.length - 1;
-      if (lastIdx < 0) {
-        document.getElementById('vTemp').innerText = '—';
-        document.getElementById('vPH').innerText = '—';
-        document.getElementById('vTDS').innerText = '—';
-        document.getElementById('vTUR').innerText = '—';
-        document.getElementById('tTemp').innerText = '—';
-        document.getElementById('tPH').innerText = '—';
-        document.getElementById('tTDS').innerText = '—';
-        document.getElementById('tTUR').innerText = '—';
-        return;
-      }
-      document.getElementById('vTemp').innerText = maybeNum(state.temperature[lastIdx]);
-      document.getElementById('vPH').innerText = maybeNum(state.ph[lastIdx]);
-      document.getElementById('vTDS').innerText = maybeNum(state.tds[lastIdx]);
-      document.getElementById('vTUR').innerText = maybeNum(state.turbidity[lastIdx]);
-      const ts = new Date(state.timestamps[lastIdx]).toLocaleString();
+    function val(x){ return x===null||x===undefined?'-':x; }
+    function updateCards(){
+      const i = state.timestamps.length-1;
+      if (i<0){ ['vTemp','vPH','vTDS','vTUR'].forEach(id=>document.getElementById(id).innerText='—'); ['tTemp','tPH','tTDS','tTUR'].forEach(id=>document.getElementById(id).innerText='—'); return; }
+      document.getElementById('vTemp').innerText = val(state.temperature[i]);
+      document.getElementById('vPH').innerText = val(state.ph[i]);
+      document.getElementById('vTDS').innerText = val(state.tds[i]);
+      document.getElementById('vTUR').innerText = val(state.turbidity[i]);
+      const ts = new Date(state.timestamps[i]).toLocaleString();
       document.getElementById('tTemp').innerText = ts;
       document.getElementById('tPH').innerText = ts;
       document.getElementById('tTDS').innerText = ts;
       document.getElementById('tTUR').innerText = ts;
     }
 
-    // -------------------------
     // Utilities
-    // -------------------------
     function downloadCSV(){
-      if (!state.timestamps.length) return showToast('Không có dữ liệu để tải');
-      let csv = 'time,temperature,pH,tds,turbidity\n';
-      for (let i=0;i<state.timestamps.length;i++){
-        csv += `"${new Date(state.timestamps[i]).toISOString()}",${state.temperature[i] ?? ''},${state.ph[i] ?? ''},${state.tds[i] ?? ''},${state.turbidity[i] ?? ''}\n`;
-      }
-      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `${espId||'device'}_last10min.csv`;
-      a.click();
-      URL.revokeObjectURL(url);
+      if (!state.timestamps.length) return toast('Không có dữ liệu');
+      let csv='time,temperature,pH,tds,turbidity\n';
+      for(let i=0;i<state.timestamps.length;i++) csv += `"${new Date(state.timestamps[i]).toISOString()}",${state.temperature[i]??''},${state.ph[i]??''},${state.tds[i]??''},${state.turbidity[i]??''}\n`;
+      const blob = new Blob([csv], {type:'text/csv'}); const url = URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download=`${espId||'device'}_last10min.csv`; a.click(); URL.revokeObjectURL(url);
     }
-
     function refreshNow(){ if (espId) loadDeviceData(); }
-    function clearChart(){ state.timestamps.length = 0; state.labels.length = 0; state.temperature.length = 0; state.ph.length = 0; state.tds.length = 0; state.turbidity.length = 0; if (chart) { chart.destroy(); chart = null; } renderHistory(); updateMetricCards(); }
+    function clearChart(){ state.timestamps.length=0; state.labels.length=0; state.temperature.length=0; state.ph.length=0; state.tds.length=0; state.turbidity.length=0; if (chart){ chart.destroy(); chart=null; } renderHistory(); updateCards(); }
 
-    window.addEventListener('beforeunload', () => { if (subscription) supabase.removeChannel(subscription); });
+    // Cleanup on unload
+    window.addEventListener('beforeunload', ()=>{ if (subscription) supabase.removeChannel(subscription); });
   </script>
 </body>
 </html>
-
