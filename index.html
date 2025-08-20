@@ -3,8 +3,9 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Aqua-IoT — Light Theme</title>
+  <title>Aqua-IoT — Light Theme (Fixed)</title>
 
+  <!-- Supabase SDK (cdn) -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
@@ -13,54 +14,34 @@
       --bg: #f3f7fb;
       --panel: #ffffff;
       --muted: #6b7280;
-      --accent: #2563eb; /* blue */
+      --accent: #2563eb;
       --card-shadow: 0 6px 24px rgba(37,99,235,0.08);
       --text: #0b1221;
     }
     *{box-sizing:border-box}
-    body{
-      margin:0;
-      min-height:100vh;
-      font-family: Inter, "Segoe UI", Roboto, Arial, sans-serif;
-      background: linear-gradient(180deg,#eaf2ff 0%, #f8fbff 100%);
-      color:var(--text);
-      display:flex;
-      justify-content:center;
-      padding:28px;
-    }
+    body{ margin:0; min-height:100vh; font-family:Inter,system-ui,Segoe UI,Roboto,Arial; background:linear-gradient(180deg,#eaf2ff 0%, #f8fbff 100%); color:var(--text); display:flex; justify-content:center; padding:28px; }
     .app{ width:100%; max-width:1100px; }
-
     .top{ display:flex; gap:12px; align-items:center; margin-bottom:16px; }
     .card{ background:var(--panel); border-radius:10px; padding:12px; box-shadow:var(--card-shadow); }
-
-    .auth { display:flex; gap:8px; align-items:center; padding:12px; border-radius:10px; }
-    input[type="email"], input[type="password"], input[type="text"]{
-      padding:10px 12px; border:1px solid #e6eef8; border-radius:8px; outline:none; width:220px;
-      background:transparent;
-    }
+    .auth{ display:flex; gap:8px; align-items:center; padding:12px; border-radius:10px; }
+    input{ padding:10px 12px; border:1px solid #e6eef8; border-radius:8px; outline:none; width:220px; background:transparent; }
     button{ background:var(--accent); color:#fff; border:none; padding:10px 12px; border-radius:8px; cursor:pointer; font-weight:600; }
     .ghost{ background:transparent; color:var(--muted); border:1px solid #eef3ff; }
-
     .grid{ display:grid; grid-template-columns: 1fr 360px; gap:14px; }
     @media (max-width:960px){ .grid{ grid-template-columns: 1fr } }
-
     .controls{ display:flex; gap:8px; align-items:center; padding:10px; border-radius:8px; }
     .small{ font-size:13px; color:var(--muted) }
     #multiChart{ width:100%; height:360px; background:#fff; border-radius:8px; }
-
     .metrics{ display:grid; grid-template-columns: repeat(2, 1fr); gap:10px; }
     .metric{ background:#fbfdff; padding:12px; border-radius:8px; border:1px solid #eef6ff; }
     .metric .label{ font-size:13px; color:var(--muted) }
     .metric .value{ font-size:20px; font-weight:700; margin-top:6px; }
-
     .history{ max-height:220px; overflow:auto; padding:8px; border-radius:6px; }
     table{ width:100%; border-collapse:collapse; font-size:13px }
     th, td{ padding:8px; text-align:left; border-bottom:1px solid #f1f7ff; color:var(--muted) }
     th{ font-weight:600; color:#475569 }
-
     .status{ color:var(--muted); font-size:13px; margin-left:12px; }
     .toast{ position:fixed; right:20px; bottom:20px; background:#0b1221; color:#fff; padding:10px 14px; border-radius:8px; display:none; }
-
   </style>
 </head>
 <body>
@@ -92,7 +73,7 @@
           <input id="espIdInput" type="text" placeholder="Nhập ESP32 ID (vd: ESP32_001)" />
           <button onclick="loadDeviceData()">Tìm & Hiển thị</button>
           <button class="ghost" onclick="stopRealtime()">Tắt Realtime</button>
-          <div style="margin-left:auto" class="small">Realtime · 10 phút window</div>
+          <div style="margin-left:auto" class="small">Realtime · 10 phút</div>
         </div>
 
         <div class="card" style="margin-top:12px;">
@@ -142,7 +123,7 @@
 
         <div class="card">
           <div style="font-weight:700; margin-bottom:6px">Info</div>
-          <div class="small">- Đăng ký/đăng nhập hoạt động với Supabase free nếu bạn đã tắt email confirmation.<br>- Nếu đăng ký vẫn không hoàn tất, kiểm tra Supabase Auth settings (Email signup & Confirmations).</div>
+          <div class="small">- Đăng ký/đăng nhập hoạt động với Supabase free nếu bạn đã tắt email confirmation.<br>- Nếu đăng ký vẫn không hoàn tất, kiểm tra Supabase Auth settings.</div>
         </div>
       </div>
     </div>
@@ -152,9 +133,11 @@
 
   <script>
     // ===== CONFIG =====
-    const SUPA_URL = "https://nrxtyqqpxzoyyyfltwqs.supabase.co";
-    const SUPA_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5yeHR5cXFweHpveXl0d3FzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTU0NzkxOTksImV4cCI6MjA3MTA1NTE5OX0.o5UC5nHA0TZd5Z8b3PNjlzY7rqbYCNbJMvjVkO59r3w";
-    const supabase = supabase.createClient(SUPA_URL, SUPA_KEY);
+    const SUPA_URL = "https://nrxtyqqpxzoyyyfltwqs.supabase.co"; // thay nếu cần
+    const SUPA_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5yeHR5cXFweHpveXl0d3FzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTU0NzkxOTksImV4cCI6MjA3MTA1NTE5OX0.o5UC5nHA0TZd5Z8b3PNjlzY7rqbYCNbJMvjVkO59r3w"; // anon key
+
+    // IMPORTANT: create client into a DIFFERENT variable name than the global 'supabase' (provided by CDN)
+    const supabaseClient = window.supabase.createClient(SUPA_URL, SUPA_KEY);
 
     // ===== STATE =====
     let espId = null;
@@ -163,75 +146,48 @@
     const state = { timestamps:[], labels:[], temperature:[], ph:[], tds:[], turbidity:[] };
 
     // ===== UI HELPERS =====
-    function toast(msg, t=3000){ const el = document.getElementById('toast'); el.innerText=msg; el.style.display='block'; clearTimeout(el._to); el._to=setTimeout(()=>el.style.display='none', t); }
+    function toast(msg, t=3000){ const el=document.getElementById('toast'); el.innerText=msg; el.style.display='block'; clearTimeout(el._to); el._to=setTimeout(()=>el.style.display='none', t); }
     function setStatus(s){ document.getElementById('statusText').innerText = s; }
     function setUserUI(user){
-      const authRow = document.getElementById('authRow');
-      const userInfo = document.getElementById('userInfo');
-      if (user){
-        authRow.style.display='none';
-        userInfo.style.display='block';
-        document.getElementById('userEmail').innerText = user.email || user.id;
-        document.getElementById('userIdShort').innerText = user.id ? user.id.slice(0,8) : '';
-      } else {
-        authRow.style.display='flex';
-        userInfo.style.display='none';
-      }
+      const authRow=document.getElementById('authRow'), userInfo=document.getElementById('userInfo');
+      if(user){ authRow.style.display='none'; userInfo.style.display='block'; document.getElementById('userEmail').innerText = user.email || user.id; document.getElementById('userIdShort').innerText = user.id ? user.id.slice(0,8) : ''; }
+      else { authRow.style.display='flex'; userInfo.style.display='none'; }
     }
 
     // ===== AUTH INIT =====
     (async function initAuth(){
       try {
-        const { data } = await supabase.auth.getSession();
+        const { data } = await supabaseClient.auth.getSession();
         const session = data?.session;
         if (session?.user) setUserUI(session.user);
       } catch(e){ console.warn('auth init err', e); }
-      supabase.auth.onAuthStateChange((event, session) => {
+      supabaseClient.auth.onAuthStateChange((event, session) => {
         if (session?.user) { setUserUI(session.user); setStatus('Đã đăng nhập'); }
         else { setUserUI(null); setStatus('Chưa đăng nhập'); stopRealtime(); clearChart(); }
       });
     })();
 
     // ===== AUTH ACTIONS =====
-async function register(){
-  const email = document.getElementById('email').value.trim();
-  const password = document.getElementById('password').value;
-  if (!email || !password) { toast('Nhập email & password'); return; }
-
-  setStatus('Đang đăng ký...');
-  try {
-    // gọi và lấy cả data lẫn error
-    const res = await supabase.auth.signUp({ email, password });
-    console.log('signUp response:', res); // <--- debug log
-    const { data, error } = res;
-
-    if (error) {
-      // lỗi rõ ràng từ Supabase
-      setStatus('Đăng ký lỗi');
-      toast('Lỗi đăng ký: ' + (error.message || JSON.stringify(error)));
-      return;
+    async function register(){
+      const email = document.getElementById('email').value.trim();
+      const password = document.getElementById('password').value;
+      if (!email || !password) { toast('Nhập email & password'); return; }
+      setStatus('Đang đăng ký...');
+      try {
+        const res = await supabaseClient.auth.signUp({ email, password });
+        console.log('signUp response:', res);
+        const { data, error } = res;
+        if (error) { setStatus('Đăng ký lỗi'); toast('Lỗi đăng ký: ' + (error.message||JSON.stringify(error))); return; }
+        if (data?.session) {
+          setStatus('Đăng ký & đăng nhập thành công'); toast('Chào mừng ' + (data.user?.email || ''));
+          setUserUI(data.user);
+        } else {
+          setStatus('Đăng ký thành công — kiểm tra email nếu cần'); toast('Đăng ký thành công');
+        }
+      } catch (err) {
+        console.error('register err', err); setStatus('Lỗi đăng ký (network)'); toast('Lỗi mạng: ' + (err.message||err));
+      }
     }
-
-    // Nếu confirmation OFF thì data.session sẽ tồn tại và user đã login
-    if (data?.session) {
-      setStatus('Đăng ký & đăng nhập thành công');
-      toast('Chào mừng ' + (data.user?.email || ''));
-      // cập nhật UI local
-      setUserUI(data.user);
-    } else {
-      // Khi confirmation ON, data.user có thể tồn tại nhưng session null
-      setStatus('Đăng ký thành công — kiểm tra email để xác thực');
-      toast('Đăng ký thành công — kiểm tra email để xác thực');
-      console.log('signUp no session, data:', data);
-    }
-  } catch (err) {
-    // lỗi network / runtime
-    console.error('register exception', err);
-    setStatus('Lỗi đăng ký (network)');
-    toast('Lỗi mạng: ' + (err.message || err));
-  }
-}
-
 
     async function login(){
       const email = document.getElementById('email').value.trim();
@@ -239,64 +195,55 @@ async function register(){
       if (!email || !password) return toast('Nhập email & password');
       setStatus('Đang đăng nhập...');
       try {
-        const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+        const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
         if (error) { setStatus('Lỗi đăng nhập'); toast('Lỗi: ' + error.message); return; }
-        if (data?.session) {
-          setStatus('Đăng nhập thành công'); toast('Đăng nhập OK');
-          setUserUI(data.user);
-        } else {
-          setStatus('Đăng nhập xong'); toast('Đã đăng nhập');
-        }
-      } catch(err){
-        setStatus('Lỗi đăng nhập'); toast('Lỗi đăng nhập'); console.error(err);
-      }
+        if (data?.session) { setStatus('Đăng nhập thành công'); toast('Đăng nhập OK'); setUserUI(data.user); }
+        else { setStatus('Đăng nhập xong'); toast('Đã đăng nhập'); }
+      } catch(err) { console.error('login err', err); setStatus('Lỗi đăng nhập'); toast('Lỗi đăng nhập'); }
     }
 
     async function logout(){
-      await supabase.auth.signOut();
-      setUserUI(null);
-      setStatus('Chưa đăng nhập');
-      toast('Đã đăng xuất');
+      try {
+        await supabaseClient.auth.signOut();
+        setUserUI(null); setStatus('Chưa đăng nhập'); toast('Đã đăng xuất');
+      } catch(e){ console.error('logout err', e); toast('Lỗi logout'); }
     }
 
-    // ===== DATA LOAD + CHART (simplified) =====
+    // ===== DATA + CHART =====
     async function loadDeviceData(){
       stopRealtime();
       const id = document.getElementById('espIdInput').value.trim();
       if (!id) return toast('Nhập esp_id');
       espId = id;
       setStatus(`Tải dữ liệu ${espId}...`);
-      const since = new Date(Date.now() - 10*60*1000).toISOString();
-      const { data, error } = await supabase
-        .from('sensors_data')
-        .select('created_at, temperature, ph, tds, turbidity')
-        .eq('device_id', espId)
-        .gte('created_at', since)
-        .order('created_at', { ascending: true });
-
-      if (error) { setStatus('Lỗi query'); toast('Lỗi query: '+error.message); return; }
-
-      // reset and populate
-      state.timestamps.length=0; state.labels.length=0; state.temperature.length=0; state.ph.length=0; state.tds.length=0; state.turbidity.length=0;
-      for (const r of data) {
-        const t = new Date(r.created_at).getTime();
-        state.timestamps.push(t);
-        state.labels.push(new Date(r.created_at).toLocaleTimeString());
-        state.temperature.push(numOrNull(r.temperature));
-        state.ph.push(numOrNull(r.ph));
-        state.tds.push(numOrNull(r.tds));
-        state.turbidity.push(numOrNull(r.turbidity));
-      }
-      renderChart();
-      renderHistory();
-      updateCards();
-      setStatus(`Đã tải ${state.timestamps.length} mẫu`);
-      startRealtime();
+      try {
+        const since = new Date(Date.now() - 10*60*1000).toISOString();
+        const { data, error } = await supabaseClient
+          .from('sensors_data')
+          .select('created_at, temperature, ph, tds, turbidity')
+          .eq('device_id', espId)
+          .gte('created_at', since)
+          .order('created_at', { ascending: true });
+        if (error) { setStatus('Lỗi query'); toast('Lỗi query: '+error.message); return; }
+        // reset state
+        state.timestamps.length=0; state.labels.length=0; state.temperature.length=0; state.ph.length=0; state.tds.length=0; state.turbidity.length=0;
+        for (const r of data) {
+          const t = new Date(r.created_at).getTime();
+          state.timestamps.push(t);
+          state.labels.push(new Date(r.created_at).toLocaleTimeString());
+          state.temperature.push(numOrNull(r.temperature));
+          state.ph.push(numOrNull(r.ph));
+          state.tds.push(numOrNull(r.tds));
+          state.turbidity.push(numOrNull(r.turbidity));
+        }
+        renderChart(); renderHistory(); updateCards();
+        setStatus(`Đã tải ${state.timestamps.length} mẫu`);
+        startRealtime();
+      } catch(err){ console.error('loadDeviceData err', err); setStatus('Lỗi tải dữ liệu'); toast('Lỗi tải dữ liệu'); }
     }
 
-    function numOrNull(v){ const n=Number(v); return Number.isFinite(n)?n:null; }
+    function numOrNull(v){ const n=Number(v); return Number.isFinite(n) ? n : null; }
 
-    // Chart
     function renderChart(){
       const ctx = document.getElementById('multiChart').getContext('2d');
       const labels = state.labels.slice();
@@ -314,18 +261,18 @@ async function register(){
       });
     }
 
-    // Realtime
+    // ===== Realtime =====
     function startRealtime(){
       if (!espId) return;
-      if (subscription) { supabase.removeChannel(subscription); subscription = null; }
-      subscription = supabase
+      if (subscription) { supabaseClient.removeChannel(subscription); subscription = null; }
+      subscription = supabaseClient
         .channel('realtime-'+espId)
         .on('postgres_changes', { event:'INSERT', schema:'public', table:'sensors_data', filter:`device_id=eq.${espId}` }, payload => {
           pushRow(payload.new);
         })
         .subscribe(status => { if (status === 'SUBSCRIBED') setStatus('Realtime on for '+espId); });
     }
-    function stopRealtime(){ if (subscription) { supabase.removeChannel(subscription); subscription=null; setStatus('Realtime off'); } }
+    function stopRealtime(){ if (subscription) { supabaseClient.removeChannel(subscription); subscription=null; setStatus('Realtime off'); } }
 
     function pushRow(row){
       const t = new Date(row.created_at).getTime();
@@ -343,11 +290,11 @@ async function register(){
       renderChart(); renderHistory(); updateCards();
     }
 
-    // UI: history and cards
+    // ===== UI: history & cards =====
     function renderHistory(){
       const tbody = document.getElementById('historyBody'); tbody.innerHTML='';
       for(let i=state.labels.length-1;i>=0;i--){
-        const tr = document.createElement('tr');
+        const tr=document.createElement('tr');
         tr.innerHTML = `<td>${state.labels[i]||'-'}</td><td>${val(state.temperature[i])}</td><td>${val(state.ph[i])}</td><td>${val(state.tds[i])}</td><td>${val(state.turbidity[i])}</td>`;
         tbody.appendChild(tr);
       }
@@ -361,24 +308,21 @@ async function register(){
       document.getElementById('vTDS').innerText = val(state.tds[i]);
       document.getElementById('vTUR').innerText = val(state.turbidity[i]);
       const ts = new Date(state.timestamps[i]).toLocaleString();
-      document.getElementById('tTemp').innerText = ts;
-      document.getElementById('tPH').innerText = ts;
-      document.getElementById('tTDS').innerText = ts;
-      document.getElementById('tTUR').innerText = ts;
+      document.getElementById('tTemp').innerText = ts; document.getElementById('tPH').innerText = ts; document.getElementById('tTDS').innerText = ts; document.getElementById('tTUR').innerText = ts;
     }
 
-    // Utilities
+    // ===== Utilities =====
     function downloadCSV(){
       if (!state.timestamps.length) return toast('Không có dữ liệu');
       let csv='time,temperature,pH,tds,turbidity\n';
       for(let i=0;i<state.timestamps.length;i++) csv += `"${new Date(state.timestamps[i]).toISOString()}",${state.temperature[i]??''},${state.ph[i]??''},${state.tds[i]??''},${state.turbidity[i]??''}\n`;
-      const blob = new Blob([csv], {type:'text/csv'}); const url = URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download=`${espId||'device'}_last10min.csv`; a.click(); URL.revokeObjectURL(url);
+      const blob=new Blob([csv],{type:'text/csv'}); const url=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download=`${espId||'device'}_last10min.csv`; a.click(); URL.revokeObjectURL(url);
     }
     function refreshNow(){ if (espId) loadDeviceData(); }
     function clearChart(){ state.timestamps.length=0; state.labels.length=0; state.temperature.length=0; state.ph.length=0; state.tds.length=0; state.turbidity.length=0; if (chart){ chart.destroy(); chart=null; } renderHistory(); updateCards(); }
 
-    // Cleanup on unload
-    window.addEventListener('beforeunload', ()=>{ if (subscription) supabase.removeChannel(subscription); });
+    // cleanup
+    window.addEventListener('beforeunload', ()=>{ if (subscription) supabaseClient.removeChannel(subscription); });
   </script>
 </body>
 </html>
