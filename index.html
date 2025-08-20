@@ -284,11 +284,31 @@
       const email = document.getElementById('email').value.trim();
       const password = document.getElementById('password').value;
       if (!email || !password) return showToast('Nhập email & password');
-      setStatus('Đang đăng ký...', true);
-      const { error } = await supabase.auth.signUp({ email, password });
-      if (error) { setStatus('Đăng ký lỗi'); showToast('Lỗi đăng ký: ' + error.message); }
-      else { setStatus('Đã gửi email xác thực (nếu required).'); showToast('Đăng ký thành công'); }
-    }
+
+setStatus('Đang đăng ký...');
+
+const { data, error } = await supabase.auth.signUp({
+  email,
+  password,
+});
+
+if (error) {
+  setStatus('Đăng ký lỗi');
+  showToast('Lỗi đăng ký: ' + error.message);
+} else {
+  // Nếu tắt email confirmation thì data.session có luôn
+  if (data?.session) {
+    setStatus('Đăng ký & đăng nhập thành công!');
+    showToast('Chào mừng ' + data.user.email);
+
+    // 👉 chuyển sang dashboard luôn
+    window.location.href = '/dashboard';
+  } else {
+    // fallback nếu có cấu hình khác
+    setStatus('Đăng ký thành công, vui lòng đăng nhập.');
+    showToast('Đăng ký thành công');
+  }
+}
 
     async function login(){
       const email = document.getElementById('email').value.trim();
