@@ -20,12 +20,11 @@
   </select>
 
   <!-- Thông số -->
-  <div id="stats">
-    <div>TDS: <span id="tds-value"></span></div>
-    <div>Turbidity: <span id="turbidity-value"></span></div>
-    <div>Temperature: <span id="temp-value"></span></div>
-    <div>pH: <span id="ph-value"></span></div>
-  </div>
+  <div id="temperature">Nhiệt độ: --</div>
+  <div id="tds">TDS: --</div>
+  <div id="ph">pH: --</div>
+  <div id="turbidity">Độ đục: --</div>
+
 
   <!-- Charts -->
   <canvas id="tds-chart" width="400" height="200"></canvas>
@@ -34,6 +33,7 @@
   <canvas id="ph-chart" width="400" height="200"></canvas>
 
   <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="card.js"></script>
 </body>
