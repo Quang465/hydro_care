@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ESP32 Details</title>
+</head>
+<body>
+  <button id="back-btn">⬅ Back to Dashboard</button>
+
+  <h2>ESP32 Device Details</h2>
+  <p id="esp-id"></p>
+
+  <!-- Dropdown chọn cá -->
+  <label for="fish-select">Choose fish: </label>
+  <select id="fish-select">
+    <option value="fish1">Fish 1</option>
+    <option value="fish2">Fish 2</option>
+    <option value="fish3">Fish 3</option>
+  </select>
+
+  <!-- Thông số -->
+  <div id="stats">
+    <div>TDS: <span id="tds-value"></span></div>
+    <div>Turbidity: <span id="turbidity-value"></span></div>
+    <div>Temperature: <span id="temp-value"></span></div>
+    <div>pH: <span id="ph-value"></span></div>
+  </div>
+
+  <!-- Charts -->
+  <canvas id="tds-chart" width="400" height="200"></canvas>
+  <canvas id="turbidity-chart" width="400" height="200"></canvas>
+  <canvas id="temp-chart" width="400" height="200"></canvas>
+  <canvas id="ph-chart" width="400" height="200"></canvas>
+
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="card.js"></script>
+</body>
+</html>
