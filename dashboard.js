@@ -1,5 +1,5 @@
 // Kết nối Supabase
-const SUPABASE_URL = "https://YOUR-PROJECT.supabase.co"; 
+const SUPABASE_URL = "https://nrxtyqqpxzoyyyfltwqs.supabase.co"; 
 const SUPABASE_ANON_KEY = "YOUR-ANON-KEY";
 const { createClient } = window.supabase;
 const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
