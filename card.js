@@ -1,75 +1,87 @@
-// Lấy esp_id từ URL
-const params = new URLSearchParams(window.location.search);
-const espId = params.get("esp_id");
-document.getElementById("esp-id").innerText = "ESP32 ID: " + espId;
+const SUPABASE_URL = "https://nrxtyqqpxzoyyyfltwqs.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5yeHR5cXFweHpveXl5Zmx0d3FzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTU0NzkxOTksImV4cCI6MjA3MTA1NTE5OX0.o5UC5nHA0TZd5Z8b3PNjlzY7rqbYCNbJMvjVkO59r3w";
+const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-// Nút back
-document.getElementById("back-btn").addEventListener("click", () => {
+// Lấy esp_id từ URL
+const urlParams = new URLSearchParams(window.location.search);
+const espId = urlParams.get("esp_id");
+
+// Elements
+const temperatureDiv = document.getElementById("temperature");
+const tdsDiv = document.getElementById("tds");
+const phDiv = document.getElementById("ph");
+const turbidityDiv = document.getElementById("turbidity");
+const fishSelect = document.getElementById("fishType");
+
+// Chuẩn thông số cho từng loài cá (tạm thời)
+const fishStandards = {
+  "fish1": { temperature: [20, 28], tds: [200, 400], ph: [6.5, 7.5], turbidity: [0, 50] },
+  "fish2": { temperature: [22, 30], tds: [150, 350], ph: [6.8, 7.2], turbidity: [0, 40] },
+  "fish3": { temperature: [18, 26], tds: [100, 300], ph: [6.0, 7.0], turbidity: [0, 60] }
+};
+
+// Hàm check thông số
+function checkStatus(value, [min, max]) {
+  if (value < min) return "Thấp";
+  if (value > max) return "Cao";
+  return "Tốt";
+}
+
+// Hàm render dữ liệu
+function renderData(data) {
+  const fishType = fishSelect.value;
+  const standard = fishStandards[fishType];
+
+  temperatureDiv.innerText = `Nhiệt độ: ${data.temperature}°C (${checkStatus(data.temperature, standard.temperature)})`;
+  tdsDiv.innerText = `TDS: ${data.tds} ppm (${checkStatus(data.tds, standard.tds)})`;
+  phDiv.innerText = `pH: ${data.ph} (${checkStatus(data.ph, standard.ph)})`;
+  turbidityDiv.innerText = `Độ đục: ${data.turbidity} NTU (${checkStatus(data.turbidity, standard.turbidity)})`;
+}
+
+// Lấy dữ liệu mới nhất ban đầu
+async function loadLatest() {
+  const { data, error } = await supabase
+    .from("sensors_data")
+    .select("temperature, tds, ph, turbidity")
+    .eq("device_id", espId)
+    .order("created_at", { ascending: false })
+    .limit(1);
+
+  if (error) {
+    console.error("Error loading data:", error);
+    return;
+  }
+  if (data.length > 0) {
+    renderData(data[0]);
+  }
+}
+
+// Lắng nghe realtime thay đổi trong bảng
+function subscribeRealtime() {
+  supabase
+    .channel("sensors-channel")
+    .on(
+      "postgres_changes",
+      { event: "INSERT", schema: "public", table: "sensors_data", filter: `device_id=eq.${espId}` },
+      (payload) => {
+        console.log("Realtime update:", payload.new);
+        renderData(payload.new);
+      }
+    )
+    .subscribe();
+}
+
+// Nút back về dashboard
+document.getElementById("backBtn").addEventListener("click", () => {
   window.location.href = "dashboard.html";
 });
 
-// Mock dữ liệu realtime
-const mockData = {
-  tds: 300,
-  turbidity: 2.5,
-  temperature: 26,
-  ph: 7.2
-};
-
-// Chuẩn của từng loại cá (min-max)
-const fishStandards = {
-  fish1: { tds: [200, 400], turbidity: [1, 5], temperature: [24, 28], ph: [6.5, 7.5] },
-  fish2: { tds: [150, 350], turbidity: [0.5, 4], temperature: [20, 26], ph: [6.8, 7.2] },
-  fish3: { tds: [250, 450], turbidity: [1, 6], temperature: [25, 30], ph: [7.0, 8.0] }
-};
-
-// Hàm đánh giá thông số
-function checkStatus(value, [min, max]) {
-  if (value < min) return "thấp";
-  if (value > max) return "cao";
-  return "tốt";
-}
-
-// Hiển thị thông số
-function displayValues(fishType) {
-  const standard = fishStandards[fishType];
-
-  document.getElementById("tds-value").innerText =
-    mockData.tds + " (" + checkStatus(mockData.tds, standard.tds) + ")";
-  document.getElementById("turbidity-value").innerText =
-    mockData.turbidity + " (" + checkStatus(mockData.turbidity, standard.turbidity) + ")";
-  document.getElementById("temp-value").innerText =
-    mockData.temperature + " (" + checkStatus(mockData.temperature, standard.temperature) + ")";
-  document.getElementById("ph-value").innerText =
-    mockData.ph + " (" + checkStatus(mockData.ph, standard.ph) + ")";
-}
-
-// Lắng nghe chọn loại cá
-const fishSelect = document.getElementById("fish-select");
+// Khi đổi loại cá thì render lại
 fishSelect.addEventListener("change", () => {
-  displayValues(fishSelect.value);
+  loadLatest();
 });
 
-// Hiển thị mặc định fish1
-displayValues("fish1");
+// Gọi hàm
+loadLatest();
+subscribeRealtime();
 
-// --- Vẽ chart mock ---
-function createChart(canvasId, label, data) {
-  return new Chart(document.getElementById(canvasId), {
-    type: 'line',
-    data: {
-      labels: ["T1","T2","T3","T4","T5"],
-      datasets: [{
-        label,
-        data,
-        borderWidth: 2,
-        fill: false
-      }]
-    }
-  });
-}
-
-createChart("tds-chart", "TDS", [280,300,310,295,300]);
-createChart("turbidity-chart", "Turbidity", [2,2.5,2.3,2.6,2.5]);
-createChart("temp-chart", "Temperature", [25,26,27,26,26]);
-createChart("ph-chart", "pH", [7.0,7.2,7.3,7.1,7.2]);
