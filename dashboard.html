@@ -4,7 +4,6 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Dashboard</title>
-  <!-- Bỏ style.css vì bạn chưa có file này -->
   <style>
     /* General */
     body { 
@@ -126,9 +125,11 @@
 
   <div class="grid" id="deviceGrid"></div>
 
-  <!-- Import supabase + app.js để dùng signOut() -->
+  <!-- Load supabase SDK trước -->
   <script src="https://unpkg.com/@supabase/supabase-js"></script>
+  <!-- app.js khai báo supabase -->
   <script src="app.js"></script>
+  <!-- dashboard.js chỉ sử dụng supabase đã khai báo -->
   <script src="dashboard.js"></script>
 </body>
 </html>
