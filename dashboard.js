@@ -57,7 +57,8 @@ searchBtn.addEventListener("click", async () => {
   card.innerText = "ESP32 Device: " + data.esp_id;
 
   card.addEventListener("click", () => {
-    console.log("Clicked on device:", data.esp_id);
+    window.location.href = `card.html?esp_id=${espId}`;
+
     // TODO: load chi tiết + biểu đồ
   });
 
