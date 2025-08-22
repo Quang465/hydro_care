@@ -38,10 +38,15 @@ function renderDevices() {
     title.textContent = "ESP ID: " + id;
 
     const delBtn = document.createElement("button");
-    delBtn.textContent = "❌";
-    delBtn.style.background = "transparent";
+    delBtn.textContent = "X";
+    delBtn.style.background = "#dc2626";   // đỏ
+    delBtn.style.color = "white";          // chữ trắng
     delBtn.style.border = "none";
+    delBtn.style.padding = "2px 8px";
+    delBtn.style.marginLeft = "10px";
+    delBtn.style.borderRadius = "4px";
     delBtn.style.cursor = "pointer";
+    delBtn.style.fontWeight = "bold";
     delBtn.onclick = (e) => {
       e.stopPropagation(); // tránh trigger click card
       removeDevice(id);
