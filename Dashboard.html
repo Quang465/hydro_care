@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Dashboard</title>
+</head>
+<body>
+  <h2>Dashboard</h2>
+
+  <!-- Logout -->
+  <button id="logout-btn">Logout</button>
+
+  <!-- Search esp32_id -->
+  <div>
+    <input type="text" id="esp-input" placeholder="Enter ESP32 ID"/>
+    <button id="search-btn">Search</button>
+  </div>
+
+  <!-- Message -->
+  <div id="message"></div>
+
+  <!-- Cards will show here -->
+  <div id="cards-container"></div>
+
+  <!-- Supabase SDK -->
+  <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+  <script src="dashboard.js"></script>
+</body>
+</html>
