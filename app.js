@@ -1,6 +1,6 @@
 // 🔑 Thay URL và anon key bằng key của bạn
-const supabaseUrl = "https://YOUR-PROJECT.supabase.co"
-const supabaseKey = "YOUR-ANON-KEY"
+const supabaseUrl = "https://nrxtyqqpxzoyyyfltwqs.supabase.co"
+const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5yeHR5cXFweHpveXl5Zmx0d3FzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTU0NzkxOTksImV4cCI6MjA3MTA1NTE5OX0.o5UC5nHA0TZd5Z8b3PNjlzY7rqbYCNbJMvjVkO59r3w"
 const supabase = window.supabase.createClient(supabaseUrl, supabaseKey)
 
 // Xử lý hiển thị UI
