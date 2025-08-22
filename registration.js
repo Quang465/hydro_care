@@ -36,5 +36,7 @@ loginForm.addEventListener("submit", async (e) => {
   } else {
     messageDiv.innerText = "Login successful! Welcome, " + email;
     // Ở bước sau sẽ redirect sang dashboard.html để nhập esp32_id
+    window.location.href = "dashboard.html";
+
   }
 });
