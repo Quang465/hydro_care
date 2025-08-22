@@ -1,7 +1,8 @@
 // Kết nối Supabase
 const SUPABASE_URL = "https://YOUR-PROJECT.supabase.co"; 
 const SUPABASE_ANON_KEY = "YOUR-ANON-KEY";
-const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+const { createClient } = window.supabase;
+const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 const deviceGrid = document.getElementById("deviceGrid");
 let devices = loadDevices(); // load từ localStorage
@@ -21,7 +22,10 @@ function loadDevices() {
 async function addDevice() {
   const espInput = document.getElementById("espInput");
   const espId = espInput.value.trim();
-  if (!espId) return;
+  if (!espId) {
+    alert("⚠️ Please enter ESP ID");
+    return;
+  }
 
   // 1. Kiểm tra esp_id có tồn tại trong bảng devices không
   let { data: device, error } = await supabase
@@ -31,6 +35,7 @@ async function addDevice() {
     .single();
 
   if (error || !device) {
+    console.error("❌ Error or unfound:", error);
     alert("❌ Unfound ID: " + espId);
     return;
   }
@@ -54,7 +59,11 @@ function renderDevices(devices) {
     card.innerHTML = `
       <div style="display:flex;justify-content:space-between;align-items:center;">
         <strong>${espId}</strong>
-        <button onclick="deleteDevice('${espId}')" style="color:red;border:none;background:none;font-weight:bold;cursor:pointer;">X</button>
+        <button 
+          onclick="deleteDevice(event, '${espId}')" 
+          style="color:red;border:none;background:none;font-weight:bold;cursor:pointer;">
+          X
+        </button>
       </div>
       <div class="details" id="details-${espId}">Click to load data...</div>
     `;
@@ -64,7 +73,8 @@ function renderDevices(devices) {
 }
 
 // Xóa card
-function deleteDevice(espId) {
+function deleteDevice(event, espId) {
+  event.stopPropagation(); // ⛔ không cho lan sang card.onclick
   devices = devices.filter((id) => id !== espId);
   saveDevices(devices);
   renderDevices(devices);
@@ -88,7 +98,7 @@ async function loadSensorData(espId) {
     return;
   }
 
-  if (data.length === 0) {
+  if (!data || data.length === 0) {
     detailsDiv.innerHTML = "No data available";
     return;
   }
