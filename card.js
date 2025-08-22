@@ -11,7 +11,7 @@ const temperatureDiv = document.getElementById("temperature");
 const tdsDiv = document.getElementById("tds");
 const phDiv = document.getElementById("ph");
 const turbidityDiv = document.getElementById("turbidity");
-const fishSelect = document.getElementById("fishType");
+const fishSelect = document.getElementById("fish-select");
 
 // Chuẩn thông số cho từng loài cá (tạm thời)
 const fishStandards = {
@@ -72,7 +72,7 @@ function subscribeRealtime() {
 }
 
 // Nút back về dashboard
-document.getElementById("backBtn").addEventListener("click", () => {
+document.getElementById("back-btn").addEventListener("click", () => {
   window.location.href = "dashboard.html";
 });
 
