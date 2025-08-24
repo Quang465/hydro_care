@@ -4,6 +4,12 @@
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>ESP32 Details</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 16px; }
+    #charts { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 16px; }
+    canvas { background: #fff; border: 1px solid #ddd; border-radius: 6px; padding: 8px; }
+    .stats { margin-top: 12px; }
+  </style>
 </head>
 <body>
   <button id="back-btn">⬅ Back to Dashboard</button>
@@ -20,21 +26,38 @@
   </select>
 
   <!-- Thông số -->
-  <div id="temperature">Nhiệt độ: --</div>
-  <div id="tds">TDS: --</div>
-  <div id="ph">pH: --</div>
-  <div id="turbidity">Độ đục: --</div>
-
+  <div class="stats">
+    <div id="temperature">Nhiệt độ: --</div>
+    <div id="tds">TDS: --</div>
+    <div id="ph">pH: --</div>
+    <div id="turbidity">Độ đục: --</div>
+  </div>
 
   <!-- Charts -->
-  <canvas id="tds-chart" width="400" height="200"></canvas>
-  <canvas id="turbidity-chart" width="400" height="200"></canvas>
-  <canvas id="temp-chart" width="400" height="200"></canvas>
-  <canvas id="ph-chart" width="400" height="200"></canvas>
+  <div id="charts">
+    <div>
+      <h4>TDS (ppm)</h4>
+      <canvas id="tds-chart"></canvas>
+    </div>
+    <div>
+      <h4>Độ đục (NTU)</h4>
+      <canvas id="turbidity-chart"></canvas>
+    </div>
+    <div>
+      <h4>Nhiệt độ (°C)</h4>
+      <canvas id="temp-chart"></canvas>
+    </div>
+    <div>
+      <h4>pH</h4>
+      <canvas id="ph-chart"></canvas>
+    </div>
+  </div>
 
-  <!-- Chart.js -->
+  <!-- Chart.js and Supabase -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/luxon"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-luxon"></script>
   <script src="card.js"></script>
 </body>
 </html>
