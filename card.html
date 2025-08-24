@@ -1,63 +1,72 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>ESP32 Details</title>
-  <style>
-    body { font-family: Arial, sans-serif; padding: 16px; }
-    #charts { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 16px; }
-    canvas { background: #fff; border: 1px solid #ddd; border-radius: 6px; padding: 8px; }
-    .stats { margin-top: 12px; }
-  </style>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>ESP32 Details</title>
+<style>
+body { font-family: Arial, sans-serif; background: #f7f9fc; margin: 0; padding: 16px; }
+header { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; }
+#back-btn { padding: 8px 14px; background: #6c757d; border: none; color: #fff; border-radius: 6px; cursor: pointer; }
+#back-btn:hover { background: #555; }
+h2 { margin: 0; color: #333; }
+#esp-id { margin: 8px 0 16px; color: #555; }
+label { font-weight: bold; }
+select { padding: 6px; border-radius: 6px; border: 1px solid #ccc; margin-bottom: 20px; }
+.stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-bottom: 24px; }
+.stats div { background: #fff; padding: 12px; border-radius: 8px; box-shadow: 0 1px 4px rgba(0,0,0,0.1); }
+#charts { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+#charts h4 { margin: 0 0 8px; color: #333; }
+canvas { background: #fff; border: 1px solid #ddd; border-radius: 6px; padding: 8px; }
+</style>
 </head>
 <body>
-  <button id="back-btn">⬅ Back to Dashboard</button>
+<header>
+<button id="back-btn">⬅ Back</button>
+<h2>ESP32 Device Details</h2>
+</header>
 
-  <h2>ESP32 Device Details</h2>
-  <p id="esp-id"></p>
 
-  <!-- Dropdown chọn cá -->
-  <label for="fish-select">Choose fish: </label>
-  <select id="fish-select">
-    <option value="fish1">Fish 1</option>
-    <option value="fish2">Fish 2</option>
-    <option value="fish3">Fish 3</option>
-  </select>
+<p id="esp-id"></p>
 
-  <!-- Thông số -->
-  <div class="stats">
-    <div id="temperature">Nhiệt độ: --</div>
-    <div id="tds">TDS: --</div>
-    <div id="ph">pH: --</div>
-    <div id="turbidity">Độ đục: --</div>
-  </div>
 
-  <!-- Charts -->
-  <div id="charts">
-    <div>
-      <h4>TDS (ppm)</h4>
-      <canvas id="tds-chart"></canvas>
-    </div>
-    <div>
-      <h4>Độ đục (NTU)</h4>
-      <canvas id="turbidity-chart"></canvas>
-    </div>
-    <div>
-      <h4>Nhiệt độ (°C)</h4>
-      <canvas id="temp-chart"></canvas>
-    </div>
-    <div>
-      <h4>pH</h4>
-      <canvas id="ph-chart"></canvas>
-    </div>
-  </div>
+<!-- Dropdown chọn cá -->
+<label for="fish-select">Choose fish: </label>
+<select id="fish-select">
+<option value="fish1">Fish 1</option>
+<option value="fish2">Fish 2</option>
+<option value="fish3">Fish 3</option>
+</select>
 
-  <!-- Chart.js and Supabase -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/luxon"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-luxon"></script>
-  <script src="card.js"></script>
-</body>
+
+<!-- Thông số -->
+<div class="stats">
+<div id="temperature">Nhiệt độ: --</div>
+<div id="tds">TDS: --</div>
+<div id="ph">pH: --</div>
+<div id="turbidity">Độ đục: --</div>
+</div>
+
+
+<!-- Charts -->
+<div id="charts">
+<div>
+<h4>TDS (ppm)</h4>
+<canvas id="tds-chart"></canvas>
+</div>
+<div>
+<h4>Độ đục (NTU)</h4>
+<canvas id="turbidity-chart"></canvas>
+</div>
+<div>
+<h4>Nhiệt độ (°C)</h4>
+<canvas id="temp-chart"></canvas>
+</div>
+<div>
+<h4>pH</h4>
+<canvas id="ph-chart"></canvas>
+</div>
+</div>
+
+
 </html>
