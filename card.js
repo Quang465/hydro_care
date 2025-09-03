@@ -133,18 +133,31 @@ fishSelect.addEventListener("change", () => {
 // gửi fish_type về Edge Function
 async function sendFishType(fishType) {
   try {
-    const resp = await fetch(`${SUPABASE_URL.replace('.co', '.co/functions/v1/evaluate_fish')}`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "apikey": SUPABASE_ANON_KEY,
-        "Authorization": `Bearer ${SUPABASE_ANON_KEY}`
-      },
-      body: JSON.stringify({
-        device_id: espId,
-        fish_type: fishType
-      })
-    });
+    const resp = await fetch(
+      "https://nrxtyqqpxzoyyyfltwqs.supabase.co/functions/v1/evaluate_fish",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "apikey":
+            "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5yeHR5cXFweHpveXl5Zmx0d3FzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTU0NzkxOTksImV4cCI6MjA3MTA1NTE5OX0.o5UC5nHA0TZd5Z8b3PNjlzY7rqbYCNbJMvjVkO59r3w",
+          "Authorization":
+            "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5yeHR5cXFweHpveXl5Zmx0d3FzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTU0NzkxOTksImV4cCI6MjA3MTA1NTE5OX0.o5UC5nHA0TZd5Z8b3PNjlzY7rqbYCNbJMvjVkO59r3w"
+        },
+        body: JSON.stringify({
+          device_id: espId,
+          fish_type: fishType,
+        }),
+      }
+    );
+
+    const data = await resp.json();
+    console.log("Kết quả từ Edge Function:", data);
+  } catch (err) {
+    console.error("Lỗi khi gửi fish_type:", err);
+  }
+}
+
 
     const data = await resp.json();
     console.log("Kết quả đánh giá:", data);
