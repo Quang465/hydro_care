@@ -20,7 +20,7 @@ const fishStandards = {
   "fish2": { temperature: [22, 30], tds: [150, 350], ph: [6.8, 7.2], turbidity: [0, 40] },
   "fish3": { temperature: [18, 26], tds: [100, 300], ph: [6.0, 7.0], turbidity: [0, 60] }
 };
-
+// đánh giá thông số
 function checkStatus(value, [min, max]) {
   if (value < min) return "Thấp";
   if (value > max) return "Cao";
@@ -55,7 +55,7 @@ function createChart(ctx, label, yLabel) {
     }
   });
 }
-
+// tạo đồ thị
 const tdsChart = createChart(document.getElementById('tds-chart'), 'TDS', 'ppm');
 const turbidityChart = createChart(document.getElementById('turbidity-chart'), 'Turbidity', 'NTU');
 const tempChart = createChart(document.getElementById('temp-chart'), 'Temperature', '°C');
@@ -68,7 +68,7 @@ function addPoint(chart, timestamp, value) {
   chart.data.datasets[0].data = chart.data.datasets[0].data.filter(p => new Date(p.x).getTime() >= cutoff);
   chart.update('none');
 }
-
+// lấy dữ liệu
 function renderData(data) {
   const fishType = fishSelect.value;
   const standard = fishStandards[fishType];
@@ -122,7 +122,7 @@ function subscribeRealtime() {
       })
     .subscribe();
 }
-
+// nút chuyển về dashboard
 document.getElementById("back-btn").addEventListener("click", () => {
   window.location.href = "dashboard.html";
 });
@@ -130,6 +130,28 @@ document.getElementById("back-btn").addEventListener("click", () => {
 fishSelect.addEventListener("change", () => {
   loadHistory();
 });
+// gửi fish_type về Edge Function
+async function sendFishType(fishType) {
+  try {
+    const resp = await fetch(`${https://nrxtyqqpxzoyyyfltwqs.supabase.co.replace('.co', '.co/functions/v1/evaluate_fish')}`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "apikey":eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5yeHR5cXFweHpveXl5Zmx0d3FzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTU0NzkxOTksImV4cCI6MjA3MTA1NTE5OX0.o5UC5nHA0TZd5Z8b3PNjlzY7rqbYCNbJMvjVkO59r3w,
+        "Authorization": `Bearer ${eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5yeHR5cXFweHpveXl5Zmx0d3FzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTU0NzkxOTksImV4cCI6MjA3MTA1NTE5OX0.o5UC5nHA0TZd5Z8b3PNjlzY7rqbYCNbJMvjVkO59r3w}`
+      },
+      body: JSON.stringify({
+        device_id: espId,
+        fish_type: fishType
+      })
+    });
+
+    const data = await resp.json();
+    console.log("Kết quả đánh giá:", data);
+  } catch (err) {
+    console.error("Lỗi khi gọi edge function:", err);
+  }
+}
 
 (async () => {
   await loadHistory();
