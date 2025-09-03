@@ -150,9 +150,6 @@ async function sendFishType(fishType) {
         }),
       }
     );
-  }
-}
-
     const data = await resp.json();
     console.log("Kết quả từ Edge Function:", data);
   } catch (err) {
