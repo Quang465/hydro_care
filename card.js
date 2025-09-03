@@ -159,6 +159,6 @@ async function sendFishType(fishType) {
 
 
 (async () => {
-  await loadHistory();
+  loadHistory();   // không cần await
   subscribeRealtime();
 })();
