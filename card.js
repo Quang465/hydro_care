@@ -158,13 +158,6 @@ async function sendFishType(fishType) {
 }
 
 
-    const data = await resp.json();
-    console.log("Kết quả đánh giá:", data);
-  } catch (err) {
-    console.error("Lỗi khi gọi edge function:", err);
-  }
-}
-
 (async () => {
   await loadHistory();
   subscribeRealtime();
