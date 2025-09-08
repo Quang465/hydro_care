@@ -127,9 +127,13 @@ document.getElementById("back-btn").addEventListener("click", () => {
   window.location.href = "dashboard.html";
 });
 
+// khi chọn loại cá
 fishSelect.addEventListener("change", () => {
   loadHistory();
+  sendFishType(fishSelect.value);
 });
+
+
 // gửi fish_type về Edge Function
 async function sendFishType(fishType) {
   try {
