@@ -134,7 +134,7 @@ fishSelect.addEventListener("change", () => {
 async function sendFishType(fishType) {
   try {
     const resp = await fetch(
-      "https://nrxtyqqpxzoyyyfltwqs.supabase.co/functions/v1/evaluate_fish",
+      "https://nrxtyqqpxzoyyyfltwqs.supabase.co/functions/v1/bright-processor",
       {
         method: "POST",
         headers: {
