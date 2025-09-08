@@ -150,7 +150,10 @@ async function updateDeviceConfig(deviceId, fishType) {
   try {
     const { data, error } = await supabase
       .from("device_config")
-      .upsert({ esp_id: deviceId, fish_type: fishType }, { onConflict: "esp_id" });
+      .upsert(
+        { device_id: deviceId, fish_type: fishType },
+        { onConflict: ["device_id"] }
+      );
 
     if (error) {
       console.error("Lỗi khi cập nhật device_config:", error);
@@ -161,6 +164,7 @@ async function updateDeviceConfig(deviceId, fishType) {
     console.error("Lỗi khi gọi supabase:", err);
   }
 }
+
 
 // khi chọn loại cá
 fishSelect.addEventListener("change", () => {
