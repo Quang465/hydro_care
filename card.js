@@ -33,9 +33,9 @@ if (espId) {
   espIdP.innerText = "No device selected";
 }
 
-const TIME_WINDOW = 60 * 60 * 1000; // 10 phút
+const TIME_WINDOW = 60 * 60 * 1000; // 60 phút
 
-function createChart(ctx, label, yLabel) {
+function createChart(ctx, label, yLabel, yMin = null, yMax = null) {
   return new Chart(ctx, {
     type: 'line',
     data: { datasets: [{ label: label, data: [], borderWidth: 2, pointRadius: 2 }] },
@@ -48,22 +48,28 @@ function createChart(ctx, label, yLabel) {
           time: { unit: 'minute', tooltipFormat: 'HH:mm:ss' }
         },
         y: {
-          title: { display: true, text: yLabel }
+          title: { display: true, text: yLabel },
+          min: yMin,
+          max: yMax,
+          ticks: {
+            stepSize: yMax && yMin ? (yMax - yMin) / 10 : undefined // chia đều khoảng
+          }
         }
       },
       plugins: { legend: { display: false } }
     }
   });
 }
+
 // tạo đồ thị
-const tdsChart = createChart(document.getElementById('tds-chart'), 'TDS', 'ppm');
-const turbidityChart = createChart(document.getElementById('turbidity-chart'), 'Turbidity', 'NTU');
-const tempChart = createChart(document.getElementById('temp-chart'), 'Temperature', '°C');
-const phChart = createChart(document.getElementById('ph-chart'), 'pH', 'pH');
+const tdsChart = createChart(document.getElementById('tds-chart'), 'TDS', 'ppm'); // auto scale
+const turbidityChart = createChart(document.getElementById('turbidity-chart'), 'Độ đục', 'NTU', 0, 500);
+const tempChart = createChart(document.getElementById('temp-chart'), 'Nhiệt độ', '°C', 0, 40);
+const phChart = createChart(document.getElementById('ph-chart'), 'pH', 'pH', 0, 14);
 
 function addPoint(chart, timestamp, value) {
   chart.data.datasets[0].data.push({ x: timestamp, y: value });
-  // Lọc dữ liệu chỉ trong 10 phút gần nhất
+  // Lọc dữ liệu chỉ trong 1 tiếng gần nhất
   const cutoff = Date.now() - TIME_WINDOW;
   chart.data.datasets[0].data = chart.data.datasets[0].data.filter(p => new Date(p.x).getTime() >= cutoff);
   chart.update('none');
