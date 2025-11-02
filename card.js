@@ -33,7 +33,7 @@ if (espId) {
   espIdP.innerText = "No device selected";
 }
 
-const TIME_WINDOW = 10 * 60 * 1000; // 10 phút
+const TIME_WINDOW = 60 * 60 * 1000; // 10 phút
 
 function createChart(ctx, label, yLabel) {
   return new Chart(ctx, {
