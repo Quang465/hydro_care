@@ -1,66 +1,99 @@
-// Supabase project keys (dùng lại của bạn)
+// === Supabase config ===
 const SUPABASE_URL = "https://nrxtyqqpxzoyyyfltwqs.supabase.co";
 const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5yeHR5cXFweHpveXl5Zmx0d3FzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTU0NzkxOTksImV4cCI6MjA3MTA1NTE5OX0.o5UC5nHA0TZd5Z8b3PNjlzY7rqbYCNbJMvjVkO59r3w";
 const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-// DOM elements
+// === DOM elements ===
 const logoutBtn = document.getElementById("logout-btn");
 const searchBtn = document.getElementById("search-btn");
 const espInput = document.getElementById("esp-input");
 const messageDiv = document.getElementById("message");
 const cardsContainer = document.getElementById("cards-container");
 
-// Kiểm tra session -> nếu chưa login thì quay lại login page
+// === Kiểm tra session (chưa login thì quay lại index) ===
 (async () => {
   const { data: { session } } = await supabase.auth.getSession();
   if (!session) {
-    window.location.href = "index.html"; // hoặc registration.html
+    window.location.href = "index.html";
   }
 })();
 
-// Logout
+// === Logout ===
 logoutBtn.addEventListener("click", async () => {
   await supabase.auth.signOut();
-  window.location.href = "index.html"; // quay lại login
+  window.location.href = "index.html";
 });
 
-// Search esp_id
-searchBtn.addEventListener("click", async () => {
-  const espId = espInput.value.trim();
-  if (!espId) return;
+// === Search + Gán ESP cho user ===
+searchBtn.addEventListener("click", handleDeviceSearch);
 
-  // Query bảng devices theo cột esp_id
+async function handleDeviceSearch() {
+  const espId = espInput.value.trim();
+  messageDiv.innerText = "";
+  cardsContainer.innerHTML = "";
+
+  if (!espId) {
+    messageDiv.innerText = "⚠️ Vui lòng nhập ESP32 ID!";
+    return;
+  }
+
+  // 🔐 Lấy user hiện tại
+  const { data: userData, error: userError } = await supabase.auth.getUser();
+  if (userError || !userData.user) {
+    messageDiv.innerText = "Bạn chưa đăng nhập!";
+    return;
+  }
+  const user = userData.user;
+
+  // 🔍 Kiểm tra thiết bị có tồn tại không
   const { data, error } = await supabase
     .from("devices")
-    .select("id, esp_id")   // chọn các cột bạn cần (ở đây chỉ lấy id & esp_id)
+    .select("*")
     .eq("esp_id", espId)
-    .maybeSingle();  // nếu không có sẽ trả về null thay vì lỗi
+    .maybeSingle();
 
-  // Nếu không tìm thấy
-  if (error) {
+  if (error && error.code !== "PGRST116") {
     console.error(error);
-    messageDiv.innerText = "Error checking device!";
+    messageDiv.innerText = "Lỗi khi kiểm tra thiết bị!";
     return;
   }
+
   if (!data) {
-    messageDiv.innerText = "Invalid ID";
+    // 🆕 Nếu chưa có → thêm mới & gán user_id
+    const { data: inserted, error: insertError } = await supabase
+      .from("devices")
+      .insert([{ esp_id: espId, user_id: user.id }])
+      .select()
+      .single();
+
+    if (insertError) {
+      messageDiv.innerText = "Không thể gán thiết bị: " + insertError.message;
+      return;
+    }
+
+    messageDiv.innerText = `✅ Đã gán ESP32 (${espId}) cho ${user.email}`;
+    createDeviceCard(inserted);
     return;
   }
 
-  // Nếu tìm thấy → tạo card
-  messageDiv.innerText = "Device found: " + espId;
+  // 🧩 Nếu đã có → kiểm tra quyền sở hữu
+  if (data.user_id === user.id) {
+    messageDiv.innerText = `Thiết bị ${espId} đã thuộc về bạn.`;
+    createDeviceCard(data);
+  } else {
+    messageDiv.innerText = `❌ Thiết bị ${espId} đã được gán cho tài khoản khác.`;
+  }
+}
 
+// === Hàm tạo card ===
+function createDeviceCard(device) {
   const card = document.createElement("div");
-  card.style.border = "1px solid black";
-  card.style.padding = "10px";
-  card.style.margin = "10px";
-  card.innerText = "ESP32 Device: " + data.esp_id;
+  card.classList.add("card");
+  card.innerText = `ESP32 Device: ${device.esp_id}`;
 
   card.addEventListener("click", () => {
-    window.location.href = `card.html?esp_id=${espId}`;
-
-    // TODO: load chi tiết + biểu đồ
+    window.location.href = `card.html?esp_id=${device.esp_id}`;
   });
 
   cardsContainer.appendChild(card);
-});
+}
