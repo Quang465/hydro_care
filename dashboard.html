@@ -36,24 +36,26 @@ input { flex: 1; padding: 10px; border: 1px solid #ccc; border-radius: 6px; }
 <div id="message"></div>
 <div id="cards-container"></div>
 
-async function loadUserInfo() {
+
+
+<!-- Supabase SDK -->
+<script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+<script>
+  async function loadUserInfo() {
   const { data, error } = await supabase.auth.getUser();
 
-  if (error || !data.user) {
-    // Nếu chưa đăng nhập → quay lại trang login
+  if (error || !data?.user) {
     window.location.href = "index.html";
     return;
   }
 
-  const userEmail = data.user.email;
-  const header = document.querySelector("header h2");
-  header.textContent = `Dashboard - ${userEmail}`;
+  const userEmail = data.user.email || "Không xác định";
+  const headerEl = document.querySelector("header h2");
+  if (headerEl) headerEl.textContent = `Dashboard - ${userEmail}`;
 }
 
-loadUserInfo();
-
-<!-- Supabase SDK -->
-<script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+document.addEventListener("DOMContentLoaded", loadUserInfo);
+<script>
 <script src="dashboard.js"></script>
 </body>
 </html>
