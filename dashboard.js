@@ -46,6 +46,7 @@ async function handleDeviceSearch() {
   const user = userData.user;
 
   // 🔍 Kiểm tra thiết bị có tồn tại không
+// 🔍 Kiểm tra xem thiết bị đã tồn tại hay chưa
   const { data, error } = await supabase
     .from("devices")
     .select(`
@@ -53,7 +54,7 @@ async function handleDeviceSearch() {
       esp_id,
       created_at,
       user_id,
-      user:auth.users(email)  -- JOIN sang bảng auth.users để lấy email
+      user:auth.users(email)
     `)
     .eq("esp_id", espId)
     .maybeSingle();
@@ -63,7 +64,7 @@ async function handleDeviceSearch() {
     return;
   }
   
-  // Nếu chưa có thiết bị → thêm mới
+  // 🆕 Nếu chưa có thiết bị → thêm mới
   if (!data) {
     const { data: inserted, error: insertError } = await supabase
       .from("devices")
@@ -87,7 +88,7 @@ async function handleDeviceSearch() {
     return;
   }
   
-  // Nếu thiết bị đã tồn tại
+  // 🧩 Nếu thiết bị đã tồn tại
   if (data.user_id === user.id) {
     messageDiv.innerText = `Thiết bị ${espId} đã thuộc về bạn (${data.user.email}).`;
     createDeviceCard(data);
