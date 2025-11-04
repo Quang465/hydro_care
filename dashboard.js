@@ -46,39 +46,30 @@ async function handleDeviceSearch() {
   const user = userData.user;
 
   // 🔍 Kiểm tra thiết bị có tồn tại không
-// 🔍 Kiểm tra xem thiết bị đã tồn tại hay chưa
   const { data, error } = await supabase
     .from("devices")
-    .select(`
-      id,
-      esp_id,
-      created_at,
-      user_id,
-      user:auth.users(email)
-    `)
+    .select(
+      `id, esp_id, created_at, user_id, user:auth.users(email)`
+    )
     .eq("esp_id", espId)
-    .maybeSingle();
+    .maybeSingle(); // hoặc .single() / .limit(1).single() tùy phiên bản supabase-js
   
   if (error) {
+    console.error("Query error:", error);
     messageDiv.innerText = "Lỗi khi truy vấn thiết bị: " + error.message;
     return;
   }
   
-  // 🆕 Nếu chưa có thiết bị → thêm mới
+  // Nếu chưa có → thêm mới
   if (!data) {
     const { data: inserted, error: insertError } = await supabase
       .from("devices")
       .insert([{ esp_id: espId, user_id: user.id }])
-      .select(`
-        id,
-        esp_id,
-        created_at,
-        user_id,
-        user:auth.users(email)
-      `)
+      .select(`id, esp_id, created_at, user_id, user:auth.users(email)`)
       .single();
   
     if (insertError) {
+      console.error("Insert error:", insertError);
       messageDiv.innerText = "Không thể gán thiết bị: " + insertError.message;
       return;
     }
@@ -88,12 +79,12 @@ async function handleDeviceSearch() {
     return;
   }
   
-  // 🧩 Nếu thiết bị đã tồn tại
+  // Nếu thiết bị đã tồn tại
   if (data.user_id === user.id) {
-    messageDiv.innerText = `Thiết bị ${espId} đã thuộc về bạn (${data.user.email}).`;
+    messageDiv.innerText = `Thiết bị ${espId} đã thuộc về bạn (${data.user?.email || "email không tìm thấy"}).`;
     createDeviceCard(data);
   } else {
-    messageDiv.innerText = `❌ Thiết bị ${espId} đã được gán cho tài khoản khác (${data.user.email}).`;
+    messageDiv.innerText = `❌ Thiết bị ${espId} đã được gán cho tài khoản khác (${data.user?.email || "email không tìm thấy"}).`;
   }
 
 }
