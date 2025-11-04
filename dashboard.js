@@ -48,44 +48,42 @@ async function handleDeviceSearch() {
   // 🔍 Kiểm tra thiết bị có tồn tại không
   const { data, error } = await supabase
     .from("devices")
-    .select(
-      `id, esp_id, created_at, user_id, user:auth.users(email)`
-    )
+    .select("*")
     .eq("esp_id", espId)
-    .maybeSingle(); // hoặc .single() / .limit(1).single() tùy phiên bản supabase-js
-  
-  if (error) {
-    console.error("Query error:", error);
-    messageDiv.innerText = "Lỗi khi truy vấn thiết bị: " + error.message;
+    .maybeSingle();
+
+  if (error && error.code !== "PGRST116") {
+    console.error(error);
+    messageDiv.innerText = "Lỗi khi kiểm tra thiết bị!";
     return;
   }
-  
-  // Nếu chưa có → thêm mới
+
   if (!data) {
+    // 🆕 Nếu chưa có → thêm mới & gán user_id
     const { data: inserted, error: insertError } = await supabase
       .from("devices")
       .insert([{ esp_id: espId, user_id: user.id }])
-      .select(`id, esp_id, created_at, user_id, user:auth.users(email)`)
+      .select()
       .single();
-  
+
     if (insertError) {
-      console.error("Insert error:", insertError);
       messageDiv.innerText = "Không thể gán thiết bị: " + insertError.message;
       return;
     }
-  
-    messageDiv.innerText = `✅ Đã gán ESP32 (${espId}) cho ${inserted.user.email}`;
+
+    messageDiv.innerText = `✅ Đã gán ESP32 (${espId}) cho ${user.email}`;
     createDeviceCard(inserted);
     return;
   }
-  
-  // Nếu thiết bị đã tồn tại
+
+  // 🧩 Nếu đã có → kiểm tra quyền sở hữu
   if (data.user_id === user.id) {
-    messageDiv.innerText = `Thiết bị ${espId} đã thuộc về bạn (${data.user?.email || "email không tìm thấy"}).`;
+    messageDiv.innerText = `Thiết bị ${espId} đã thuộc về bạn.`;
     createDeviceCard(data);
   } else {
-    messageDiv.innerText = `❌ Thiết bị ${espId} đã được gán cho tài khoản khác (${data.user?.email || "email không tìm thấy"}).`;
+    messageDiv.innerText = `❌ Thiết bị ${espId} đã được gán cho tài khoản khác.`;
   }
+
 
 }
 
