@@ -18,7 +18,7 @@ const fishSelect = document.getElementById("fish-select");
 const fishStandards = {
   "fish1": { temperature: [20, 28], tds: [200, 400], ph: [6.5, 7.5], turbidity: [0, 50] },
   "fish2": { temperature: [22, 30], tds: [150, 350], ph: [6.8, 7.2], turbidity: [0, 40] },
-  "fish3": { temperature: [18, 26], tds: [100, 300], ph: [6.0, 7.0], turbidity: [0, 60] }
+  "fish3": { temperature: [18, 24], tds: [100, 300], ph: [6.0, 7.0], turbidity: [0, 60] }
 };
 // đánh giá thông số
 function checkStatus(value, [min, max]) {
