@@ -61,32 +61,22 @@ async function handleDeviceSearch() {
   if (!data) {
     // 🆕 Nếu chưa có → thêm mới & gán user_id
     const { data: inserted, error: insertError } = await supabase
-      .from("devices")
-      .insert([{ esp_id: espId, user_id: user.id }])
-      .select()
-      .single();
+    .from("devices")
+    .insert([{ esp_id: espId, user_id: user.id }])
+    .select()
+    .single();
 
     if (insertError) {
       messageDiv.innerText = "Không thể gán thiết bị: " + insertError.message;
       return;
     }
-
     messageDiv.innerText = `✅ Đã gán ESP32 (${espId}) cho ${user.email}`;
     createDeviceCard(inserted);
     return;
   }
-
-  // 🧩 Nếu đã có → kiểm tra quyền sở hữu
-  if (data.user_id === user.id) {
-    messageDiv.innerText = `Thiết bị ${espId} đã thuộc về bạn.`;
+    messageDiv.innerText = `Thiết bị ${espId} đã tồn tại trong hệ thống`;
     createDeviceCard(data);
-  } else {
-    messageDiv.innerText = `❌ Thiết bị ${espId} đã được gán cho tài khoản khác.`;
   }
-
-
-}
-
 // === Hàm tạo card ===
 function createDeviceCard(device) {
   const card = document.createElement("div");
