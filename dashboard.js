@@ -58,25 +58,53 @@ async function handleDeviceSearch() {
     return;
   }
 
+  // 🆕 Nếu chưa có → thêm mới & gán user_id
   if (!data) {
-    // 🆕 Nếu chưa có → thêm mới & gán user_id
     const { data: inserted, error: insertError } = await supabase
-    .from("devices")
-    .insert([{ esp_id: espId, user_id: user.id }])
-    .select()
-    .single();
+      .from("devices")
+      .insert([{ esp_id: espId, user_id: user.id }])
+      .select()
+      .single();
 
     if (insertError) {
       messageDiv.innerText = "Không thể gán thiết bị: " + insertError.message;
       return;
     }
-    messageDiv.innerText = `✅ Đã gán ESP32 (${espId}) cho ${user.email}`;
+
+    messageDiv.innerText = `✅ Đã thêm mới ESP32 (${espId}) và gán cho ${user.email}`;
     createDeviceCard(inserted);
     return;
   }
-    messageDiv.innerText = `Thiết bị ${espId} đã tồn tại trong hệ thống`;
-    createDeviceCard(data);
+
+  // ⚙️ Nếu thiết bị đã tồn tại nhưng chưa có user_id → cập nhật user_id
+  if (!data.user_id) {
+    const { data: updated, error: updateError } = await supabase
+      .from("devices")
+      .update({ user_id: user.id })
+      .eq("esp_id", espId)
+      .select()
+      .single();
+
+    if (updateError) {
+      messageDiv.innerText = "Không thể cập nhật user_id: " + updateError.message;
+      return;
+    }
+
+    messageDiv.innerText = `✅ ESP32 (${espId}) đã được claim cho ${user.email}`;
+    createDeviceCard(updated);
+    return;
   }
+
+  // ⚠️ Nếu thiết bị đã có user_id khác → cảnh báo nhưng vẫn hiển thị card
+  if (data.user_id !== user.id) {
+    messageDiv.innerText = `⚠️ Thiết bị ${espId} đã được claim bởi tài khoản khác. Vẫn hiển thị để test.`;
+  } else {
+    messageDiv.innerText = `✅ Thiết bị ${espId} thuộc về bạn (${user.email})`;
+  }
+
+  createDeviceCard(data);
+}
+
 // === Hàm tạo card ===
 function createDeviceCard(device) {
   const card = document.createElement("div");
